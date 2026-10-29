@@ -57,7 +57,8 @@ const jsonLd = {
     <link rel="preconnect" href="https://images.unsplash.com" crossorigin />
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </head>
-  <body class="min-h-dvh pb-20 md:pb-0">
+  <!-- body stays transparent so the hero's fixed photo shows through; every section paints its own background -->
+  <body class="min-h-dvh !bg-transparent pb-20 md:pb-0">
     <slot />
   </body>
 </html>

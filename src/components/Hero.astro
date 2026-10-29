@@ -7,58 +7,55 @@ const ratingText = business.rating?.toFixed(1).replace('.', ',');
 const showRating = Boolean(business.rating && business.reviewCount);
 ---
 
-<section id="top" class="relative bg-graphite text-white">
-  <!--
-    Desktop grid: [gutter | text 36rem | image 36rem | gutter], so the text column
-    starts exactly where the 72rem site container starts, and the photo bleeds
-    to the right edge of the viewport.
-  -->
-  <div class="grid lg:grid-cols-[minmax(1rem,1fr)_minmax(0,40rem)_minmax(0,32rem)_minmax(0,1fr)]">
-    <!-- Photo: first on mobile (it is what the page is about), right side on desktop -->
-    <div class="relative aspect-[4/3] lg:col-start-3 lg:col-end-5 lg:row-start-1 lg:aspect-auto lg:min-h-[640px]">
-      <img
-        src={imageUrl(hero.image, 1600)}
-        srcset={imageSrcset(hero.image)}
-        sizes="(min-width: 1024px) 45vw, 100vw"
-        alt={hero.imageAlt}
-        width="1600"
-        height="1200"
-        fetchpriority="high"
-        decoding="async"
-        class="absolute inset-0 h-full w-full object-cover"
-      />
-      <!-- fade into the dark panel so the text block and photo read as one object -->
-      <div class="absolute inset-0 bg-gradient-to-t from-graphite via-graphite/10 to-transparent lg:bg-gradient-to-r lg:from-graphite lg:via-graphite/0 lg:to-transparent" aria-hidden="true"></div>
-    </div>
+<!--
+  The photo is a fixed layer behind the page: it stays put while the sections
+  below (all with opaque backgrounds) scroll up over it. Done with a fixed
+  element rather than background-attachment, because iOS ignores the latter.
+-->
+<section id="top" class="relative flex min-h-[82svh] flex-col justify-end text-white lg:min-h-[680px] lg:justify-center">
+  <div class="fixed inset-0 -z-10" aria-hidden="true">
+    <img
+      src={imageUrl(hero.image, 1920)}
+      srcset={imageSrcset(hero.image, [768, 1280, 1920])}
+      sizes="100vw"
+      alt=""
+      width="1920"
+      height="1280"
+      fetchpriority="high"
+      decoding="async"
+      class="h-full w-full object-cover"
+    />
+    <!-- legibility: heavy on the text side, light where the photo is the point -->
+    <div class="absolute inset-0 bg-gradient-to-t from-graphite via-graphite/75 to-graphite/35 lg:bg-gradient-to-r lg:from-graphite/90 lg:via-graphite/70 lg:to-graphite/20"></div>
+  </div>
 
-    <div class="relative lg:col-start-2 lg:row-start-1">
-      <div class="px-4 pb-20 pt-6 sm:px-6 lg:py-24 lg:pl-8 lg:pr-10">
-        <h1 class="max-w-[20ch] text-[1.9rem] font-bold leading-[1.1] !text-white sm:text-4xl lg:text-[2.75rem] lg:leading-[1.08]">
-          {hero.headline}
-        </h1>
-        <p class="mt-5 max-w-[52ch] text-base leading-relaxed text-white/85 sm:text-lg">
-          {hero.subline}
-        </p>
+  <div class="container-site pb-24 pt-12 sm:pb-28 lg:py-28">
+    <div class="max-w-[38rem]">
+      <h1 class="max-w-[20ch] text-[1.9rem] font-bold leading-[1.1] !text-white sm:text-4xl lg:text-[2.75rem] lg:leading-[1.08]">
+        {hero.headline}
+      </h1>
+      <p class="mt-5 max-w-[52ch] text-base leading-relaxed text-white/90 sm:text-lg">
+        {hero.subline}
+      </p>
 
-        <div class="mt-8 flex flex-col gap-3 sm:flex-row">
-          <a href={telHref(business.phone)} class="btn-primary whitespace-nowrap">
-            {hero.ctaCall ?? 'Обадете се'}: {business.phoneDisplay}
-          </a>
-          <!-- on phones the sticky bar already offers this, so it is not repeated here -->
-          <a href="#zayavka" class="btn-outline-light hidden whitespace-nowrap sm:inline-flex">{hero.ctaRequest ?? 'Заявете оглед'}</a>
-        </div>
-
-        {showRating && (
-          <p class="mt-8 flex items-center gap-2 text-sm text-white/80">
-            <span class="flex text-amber" aria-hidden="true">
-              {Array.from({ length: 5 }).map(() => (
-                <svg class="size-4" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L10 14.9l-5.2 2.8 1-5.9L1.5 7.7l5.9-.8z"/></svg>
-              ))}
-            </span>
-            <span><strong class="font-semibold text-white">{ratingText}</strong> от {business.reviewCount} отзива в Google</span>
-          </p>
-        )}
+      <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+        <a href={telHref(business.phone)} class="btn-primary whitespace-nowrap">
+          {hero.ctaCall ?? 'Обадете се'}: {business.phoneDisplay}
+        </a>
+        <!-- on phones the sticky bar already offers this, so it is not repeated here -->
+        <a href="#zayavka" class="btn-outline-light hidden whitespace-nowrap sm:inline-flex">{hero.ctaRequest ?? 'Заявете оглед'}</a>
       </div>
+
+      {showRating && (
+        <p class="mt-8 flex items-center gap-2 text-sm text-white/85">
+          <span class="flex text-amber" aria-hidden="true">
+            {Array.from({ length: 5 }).map(() => (
+              <svg class="size-4" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L10 14.9l-5.2 2.8 1-5.9L1.5 7.7l5.9-.8z"/></svg>
+            ))}
+          </span>
+          <span><strong class="font-semibold text-white">{ratingText}</strong> от {business.reviewCount} отзива в Google</span>
+        </p>
+      )}
     </div>
   </div>
 

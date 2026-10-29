@@ -30,6 +30,7 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    background: var(--color-paper); /* overscroll colour; body itself is transparent */
   }
   @media (prefers-reduced-motion: reduce) {
     html {
