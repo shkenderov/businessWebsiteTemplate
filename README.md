@@ -137,8 +137,13 @@ request form, else to prices. Override with `hero.ctaRequestHref`.
   automatically, which is Unsplash's intended use; or
 - a file name, e.g. `roof.jpg`, placed in `public/images/`.
 
+At build, `scripts/fetch-images.mjs` downloads every referenced Unsplash photo into
+`public/images/u/` (three sizes) and the page serves those, so the live site does not
+depend on Unsplash. The fetch-images workflow commits them to the repo whenever a
+config changes.
+
 For a paying client, swap the stock photos for their own job photos; it converts far
-better and removes the dependency on Unsplash.
+better.
 
 Stock photos used by the demo and examples (Unsplash licence, free for commercial use):
 Sergej (roof tiles), Zohair Mirza (roof repair), Sergio Martins (metal roofing),

@@ -1,0 +1,36 @@
+name: Fetch photos into the repo
+
+# Downloads the Unsplash photos the client configs reference and commits them,
+# so the site serves its own images. Runs when configs change, or by hand.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'src/clients/**'
+      - 'scripts/fetch-images.mjs'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fetch-images
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/fetch-images.mjs
+      - name: Commit any new photos
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/images/u
+          if git diff --cached --quiet; then echo "nothing new"; exit 0; fi
+          git commit -m "Add local copies of referenced photos [skip ci]"
+          git push

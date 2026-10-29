@@ -257,11 +257,30 @@ export function requestLabel(client: Client): string {
   return client.hero.ctaRequest ?? (sectionsOf(client).includes('booking') ? 'Запазете час' : 'Заявете оглед');
 }
 
+// Photos that scripts/fetch-images.mjs has downloaded into public/images/u/.
+// When an Unsplash reference is in this manifest the page serves the local copy.
+const localPhotos: Record<string, boolean> = (() => {
+  try {
+    const m = import.meta.glob<{ default: Record<string, boolean> }>('../../public/images/u/manifest.json', { eager: true });
+    return Object.values(m)[0]?.default ?? {};
+  } catch { return {}; }
+})();
+const LOCAL_WIDTHS = [640, 1024, 1600];
+function unsplashId(ref: string): string | null {
+  const m = ref.match(/images\.unsplash\.com\/photo-([A-Za-z0-9-]+)/);
+  return m ? m[1] : null;
+}
+function nearestLocalWidth(width: number): number {
+  return LOCAL_WIDTHS.find((w) => w >= width) ?? LOCAL_WIDTHS[LOCAL_WIDTHS.length - 1];
+}
+
 /** Resolve an image reference from config into a URL the browser can load. */
 export function imageUrl(ref: string, width = 1600): string {
   if (/^https?:\/\//.test(ref)) {
+    const id = unsplashId(ref);
+    if (id && localPhotos[id]) return `${import.meta.env.BASE_URL}images/u/${id}-${nearestLocalWidth(width)}.jpg`;
     // Unsplash CDN accepts sizing params; other hosts get the URL untouched.
-    if (ref.includes('images.unsplash.com')) {
+    if (id) {
       const u = new URL(ref);
       u.searchParams.set('auto', 'format');
       u.searchParams.set('fit', 'crop');
@@ -274,9 +293,11 @@ export function imageUrl(ref: string, width = 1600): string {
   return `${import.meta.env.BASE_URL}images/${ref}`;
 }
 
-/** srcset for responsive images; only meaningful for Unsplash-hosted refs. */
+/** srcset for responsive images (Unsplash-hosted refs, remote or local copy). */
 export function imageSrcset(ref: string, widths = [640, 1024, 1600]): string | undefined {
-  if (!ref.includes('images.unsplash.com')) return undefined;
+  const id = unsplashId(ref);
+  if (!id) return undefined;
+  if (localPhotos[id]) return LOCAL_WIDTHS.map((w) => `${import.meta.env.BASE_URL}images/u/${id}-${w}.jpg ${w}w`).join(', ');
   return widths.map((w) => `${imageUrl(ref, w)} ${w}w`).join(', ');
 }
 
