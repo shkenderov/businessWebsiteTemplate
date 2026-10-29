@@ -78,3 +78,18 @@ Local: `npm run dev` → http://localhost:4321/businessWebsiteTemplate/
 For a client's own domain, set `site` to the domain and `base` to `/` in
 `astro.config.mjs`, then host `dist/` anywhere static (Netlify, Cloudflare Pages,
 GitHub Pages with a custom domain).
+
+## Positioning the hero photo
+
+The hero photo is cropped to fill the screen, so set which part of it stays in view:
+
+```json
+"hero": {
+  "imagePosition": "50% 40%",        // desktop: x y, like CSS object-position
+  "imagePositionMobile": "60% 50%"   // phones show a narrow vertical slice, so tune separately
+}
+```
+
+`0% 0%` is the top-left corner, `100% 100%` the bottom-right. Nudge in steps of 10%
+and reload; on desktop the left two-thirds sit under the dark gradient, so put the
+interesting part of the photo on the right.

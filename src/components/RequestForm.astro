@@ -50,9 +50,9 @@ const mapSrc = business.mapQuery
           <input type="text" name="website" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true" />
 
           <div class="sm:col-span-2 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <button type="submit" class="btn-primary shrink-0 whitespace-nowrap">Изпратете заявката</button>
+            <button type="submit" class="btn-primary shrink-0 whitespace-nowrap">Изпратете заявка</button>
             <p class="text-sm text-ink-soft">
-              Снимка на проблема може да пратите по Viber на {business.phoneDisplay}.
+              Снимка на проблема можете да изпратите по Viber на {business.phoneDisplay}.
             </p>
           </div>
 
@@ -91,7 +91,7 @@ const mapSrc = business.mapQuery
           {business.areas && (
             <div>
               <dt class="text-sm font-semibold text-ink-soft">Работим в</dt>
-              <dd class="mt-1 leading-relaxed">{business.areas.join(', ')} и цяла София.</dd>
+              <dd class="mt-1 leading-relaxed">{business.areas.join(', ')} — и в цяла София.</dd>
             </div>
           )}
         </dl>
@@ -144,10 +144,10 @@ const mapSrc = business.mapQuery
       try {
         const res = await fetch(endpoint, { method: 'POST', body: data, headers: { Accept: 'application/json' } });
         if (!res.ok) throw new Error(String(res.status));
-        say('Получихме заявката. Ще ви се обадим до един работен ден.');
+        say('Получихме заявката ви. Ще ви потърсим до един работен ден.');
         form.reset();
       } catch {
-        say(`Заявката не се изпрати. Обадете се на ${form.dataset.phone} или опитайте пак.`, false);
+        say(`Заявката не беше изпратена. Позвънете на ${form.dataset.phone} или опитайте отново.`, false);
       } finally {
         btn.disabled = false;
       }
@@ -164,10 +164,10 @@ const mapSrc = business.mapQuery
     const isTouch = matchMedia('(pointer: coarse)').matches;
     if (isTouch) {
       window.location.href = `sms:${form.dataset.phone}?&body=${encodeURIComponent(text)}`;
-      say('Отваряме съобщение с попълнена заявка. Натиснете „Изпрати“.');
+      say('Отваряме SMS с попълнена заявка — остава само да натиснете „Изпрати“.');
     } else {
       try { await navigator.clipboard.writeText(text); } catch {}
-      say(`Копирахме заявката. Изпратете я по Viber или SMS на ${form.dataset.phone}, или се обадете.`);
+      say(`Заявката е копирана. Изпратете я по Viber или SMS на ${form.dataset.phone}, или ни позвънете.`);
     }
   });
 </script>

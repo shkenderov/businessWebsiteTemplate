@@ -40,7 +40,12 @@ export interface Client {
     subline: string;
     image: string;          // https://... (hot-linked) or a file name in public/images/
     imageAlt: string;
-    ctaCall?: string;       // button label; defaults to "Обадете се"
+    /** CSS object-position for the photo, e.g. "50% 40%" (x y). Controls which part
+     *  of the photo stays in view when it is cropped. Defaults to centre. */
+    imagePosition?: string;
+    /** Same, for phones (portrait crop shows a narrow slice, so the focal point often differs). */
+    imagePositionMobile?: string;
+    ctaCall?: string;       // button label; defaults to "Позвънете"
     ctaRequest?: string;    // button label; defaults to "Заявете оглед"
   };
   trust: { title: string; text: string }[];

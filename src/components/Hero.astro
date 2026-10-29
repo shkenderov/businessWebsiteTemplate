@@ -5,6 +5,8 @@ const { client } = Astro.props as { client: Client };
 const { hero, business } = client;
 const ratingText = business.rating?.toFixed(1).replace('.', ',');
 const showRating = Boolean(business.rating && business.reviewCount);
+const posDesktop = hero.imagePosition ?? '50% 50%';
+const posMobile = hero.imagePositionMobile ?? posDesktop;
 ---
 
 <!--
@@ -23,7 +25,7 @@ const showRating = Boolean(business.rating && business.reviewCount);
       height="1280"
       fetchpriority="high"
       decoding="async"
-      class="h-full w-full object-cover"
+      class="hero-photo h-full w-full object-cover"
     />
     <!-- legibility: heavy on the text side, light where the photo is the point -->
     <div class="absolute inset-0 bg-gradient-to-t from-graphite via-graphite/75 to-graphite/35 lg:bg-gradient-to-r lg:from-graphite/90 lg:via-graphite/70 lg:to-graphite/20"></div>
@@ -40,7 +42,7 @@ const showRating = Boolean(business.rating && business.reviewCount);
 
       <div class="mt-8 flex flex-col gap-3 sm:flex-row">
         <a href={telHref(business.phone)} class="btn-primary whitespace-nowrap">
-          {hero.ctaCall ?? 'Обадете се'}: {business.phoneDisplay}
+          {hero.ctaCall ?? 'Позвънете'}: {business.phoneDisplay}
         </a>
         <!-- on phones the sticky bar already offers this, so it is not repeated here -->
         <a href="#zayavka" class="btn-outline-light hidden whitespace-nowrap sm:inline-flex">{hero.ctaRequest ?? 'Заявете оглед'}</a>
@@ -64,3 +66,14 @@ const showRating = Boolean(business.rating && business.reviewCount);
     <polygon points="0,10 100,0 100,10" fill="currentColor" />
   </svg>
 </section>
+
+<style define:vars={{ posDesktop, posMobile }}>
+  .hero-photo {
+    object-position: var(--posMobile);
+  }
+  @media (min-width: 64rem) {
+    .hero-photo {
+      object-position: var(--posDesktop);
+    }
+  }
+</style>
