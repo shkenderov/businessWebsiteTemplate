@@ -27,12 +27,14 @@ const posMobile = hero.imagePositionMobile ?? posDesktop;
       decoding="async"
       class="hero-photo h-full w-full object-cover"
     />
-    <!-- legibility: heavy on the text side, light where the photo is the point -->
-    <div class="absolute inset-0 bg-gradient-to-t from-graphite via-graphite/75 to-graphite/35 lg:bg-gradient-to-r lg:from-graphite/90 lg:via-graphite/70 lg:to-graphite/20"></div>
+    <!-- legibility, layer 1: darken the whole photo a little, then heavily on the text side -->
+    <div class="absolute inset-0 bg-graphite/40"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-graphite via-graphite/80 to-graphite/20 lg:bg-gradient-to-r lg:from-graphite/95 lg:via-graphite/80 lg:via-55% lg:to-graphite/10"></div>
   </div>
 
-  <div class="container-site pb-24 pt-12 sm:pb-28 lg:py-28">
-    <div class="max-w-[38rem]">
+  <div class="container-site pb-24 pt-10 sm:pb-28 lg:py-28">
+    <!-- legibility, layer 2: a near-solid panel behind the text, so contrast never depends on the photo -->
+    <div class="-mx-4 max-w-[40rem] rounded-ui bg-graphite/75 px-4 py-6 sm:mx-0 sm:px-7 sm:py-8 lg:bg-graphite/70">
       <h1 class="max-w-[20ch] text-[1.9rem] font-bold leading-[1.1] !text-white sm:text-4xl lg:text-[2.75rem] lg:leading-[1.08]">
         {hero.headline}
       </h1>
