@@ -1,8 +1,10 @@
 ---
 import type { Client } from '../lib/clients';
+import { googleReviewsHref, googleWriteReviewHref } from '../lib/clients';
 const { client } = Astro.props as { client: Client };
 const { reviews, business } = client;
 const ratingText = business.rating?.toFixed(1).replace('.', ',');
+const placeId = business.googlePlaceId;
 ---
 
 <section id="otzivi" class="scroll-mt-20 bg-graphite text-white">
@@ -29,6 +31,17 @@ const ratingText = business.rating?.toFixed(1).replace('.', ',');
         </li>
       ))}
     </ul>
+
+    {placeId && (
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a href={googleReviewsHref(placeId)} target="_blank" rel="noopener" class="btn-outline-light !min-h-11 text-sm">
+          Всички отзиви в Google
+        </a>
+        <a href={googleWriteReviewHref(placeId)} target="_blank" rel="noopener" class="btn-outline-light !min-h-11 text-sm">
+          Оставете отзив
+        </a>
+      </div>
+    )}
 
     {reviews.sample && (
       <p class="mt-6 text-xs text-white/50">Примерни отзиви. Заменят се с реалните от Google профила на фирмата.</p>

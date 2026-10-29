@@ -28,6 +28,9 @@ export interface Client {
     mapQuery?: string;      // what to search on Google Maps for the embed
     rating?: number;        // e.g. 5.0
     reviewCount?: number;   // e.g. 114
+    /** Google Place ID (starts with "ChIJ…"). Enables the "all reviews" and
+     *  "leave a review" links. Find it: https://developers.google.com/maps/documentation/places/web-service/place-id */
+    googlePlaceId?: string;
     yearsExperience?: number;
     eik?: string;           // company id for the footer
   };
@@ -109,6 +112,14 @@ export function telHref(phone: string): string {
 
 export function viberHref(phone: string): string {
   return `viber://chat?number=${encodeURIComponent(phone.replace(/[^\d+]/g, ''))}`;
+}
+
+/** Google's public pages for a place's reviews, keyed by Place ID. */
+export function googleReviewsHref(placeId: string): string {
+  return `https://search.google.com/local/reviews?placeid=${encodeURIComponent(placeId)}`;
+}
+export function googleWriteReviewHref(placeId: string): string {
+  return `https://search.google.com/local/writereview?placeid=${encodeURIComponent(placeId)}`;
 }
 
 export function withBase(path: string): string {
