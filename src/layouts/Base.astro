@@ -1,7 +1,7 @@
 ---
 import '../styles/global.css';
 import type { Client } from '../lib/clients';
-import { withBase, imageUrl } from '../lib/clients';
+import { withBase, imageUrl, onAccent } from '../lib/clients';
 import Ambient from '../components/Ambient.astro';
 
 interface Props {
@@ -11,9 +11,11 @@ const { client } = Astro.props;
 const { seo, theme, business, hero } = client;
 const style = client.style ?? 'calm';
 
+const accent = theme?.accent ?? '#f2690a';
 const themeStyle = [
   theme?.accent ? `--color-hivis:${theme.accent}` : '',
   theme?.dark ? `--color-graphite:${theme.dark}` : '',
+  `--color-on-accent:${onAccent(accent)}`,
 ]
   .filter(Boolean)
   .join(';');

@@ -16,7 +16,7 @@ const currency = calc?.currency ?? '€';
 
     {/* ── list ─────────────────────────────────────────────────────────── */}
     {p.mode === 'list' && p.groups && (
-      <div class:list={['mt-8 grid gap-10', p.groups.length > 1 && 'md:grid-cols-2']}>
+      <div class:list={['mt-8 grid max-w-5xl gap-x-12 gap-y-10', p.groups.length > 1 && 'md:grid-cols-2']}>
         {p.groups.map((g) => (
           <div>
             {g.title && <h3 class="mb-3 text-lg font-bold">{g.title}</h3>}

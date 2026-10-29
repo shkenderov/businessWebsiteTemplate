@@ -64,7 +64,7 @@ const tickerItems = (client.services?.map((s) => s.title) ?? business.areas ?? [
   </div>
 
   {tickerItems.length > 0 && (
-    <div class="ticker border-y border-white/10 py-3 text-sm text-white/70" aria-hidden="true">
+    <div class="ticker border-y border-white/10 py-3 text-sm text-white/90" aria-hidden="true">
       <div class="ticker-track flex w-max gap-8 whitespace-nowrap px-4">
         {[...tickerItems, ...tickerItems].map((item) => (
           <span class="flex items-center gap-8">

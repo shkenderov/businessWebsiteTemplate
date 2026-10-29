@@ -282,6 +282,24 @@ export function googleWriteReviewHref(placeId: string): string {
   return `https://search.google.com/local/writereview?placeid=${encodeURIComponent(placeId)}`;
 }
 
+/** WCAG relative luminance of a hex colour. */
+export function luminance(hex: string): number {
+  const m = hex.replace('#', '');
+  const n = m.length === 3 ? m.split('').map((c) => c + c).join('') : m;
+  const f = (c: number) => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+  return 0.2126 * f(parseInt(n.slice(0, 2), 16)) + 0.7152 * f(parseInt(n.slice(2, 4), 16)) + 0.0722 * f(parseInt(n.slice(4, 6), 16));
+}
+/** Contrast ratio between two hex colours. */
+export function contrast(a: string, b: string): number {
+  const l1 = luminance(a), l2 = luminance(b);
+  const [hi, lo] = l1 > l2 ? [l1, l2] : [l2, l1];
+  return (hi + 0.05) / (lo + 0.05);
+}
+/** Text colour for things painted in the accent: white when it passes AA on the accent, otherwise near-black. */
+export function onAccent(accent: string): string {
+  return contrast('#ffffff', accent) >= 4.5 ? '#ffffff' : '#10131a';
+}
+
 export function withBase(path: string): string {
   const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   return `${base}${path.startsWith('/') ? '' : '/'}${path}`;

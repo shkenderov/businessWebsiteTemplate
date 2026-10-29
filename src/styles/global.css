@@ -30,6 +30,8 @@
   --color-hivis: #f2690a;
   /* derived at runtime so a per-client accent override also restyles hover */
   --color-hivis-deep: color-mix(in srgb, var(--color-hivis) 82%, black);
+  /* text on accent-filled surfaces; Base.astro sets it per client so it always passes AA */
+  --color-on-accent: #10131a;
   --color-amber: #f5b301;
 
   --radius-ui: 0.375rem;
@@ -94,7 +96,7 @@ html[data-style="bold"] {
   min-height: 3rem;
 }
 @utility btn-primary {
-  @apply btn bg-hivis text-white hover:bg-hivis-deep;
+  @apply btn bg-hivis text-on-accent hover:bg-hivis-deep;
 }
 @utility btn-outline-light {
   @apply btn border-2 border-white/80 text-white hover:bg-white/10;
