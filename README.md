@@ -74,7 +74,55 @@ Available: `hero`, `trust`, `services`, `prices`, `process`, `gallery`, `team`,
 - `request` — built-in form: service, preferred day, time window, note. Reaches the owner's
   phone by SMS (or `endpoint`). They confirm by calling back.
 
+- `schedule` — a real scheduling assistant: the visitor picks a service and a person
+  on the page and the person's live calendar appears inline (Cal.com, free). See
+  "Setting up online booking" below. With `"demo": true` it shows a realistic slot
+  grid that books nothing — for showcase pages.
+
 **Gallery** and **team** take photo lists; the first gallery image is shown larger.
+
+## Setting up online booking (schedule mode)
+
+Real availability, confirmations, reminders and calendar sync, with no server of
+your own: each barber/stylist gets a free Cal.com account; the page embeds it.
+
+1. **One Cal.com account per person** (cal.com → Sign up, free). Pick the username
+   carefully — it is public, e.g. `ivan-barber`. For a one-person business, one account.
+2. **Connect their calendar** (Settings → Calendars → Google / Apple / Outlook). Bookings
+   land there, and anything already in the calendar blocks the slot.
+3. **Working hours** (Settings → Availability): e.g. Tue–Sat 10:00–19:00, lunch break.
+   Time zone Europe/Sofia.
+4. **One event type per service** (Event types → New). Title = the service, duration =
+   its length, and set the URL slug to the same word on every account — `podstrigvane`,
+   `brada`, `podstrigvane-brada` … The page builds links as `username/slug`, so the slugs
+   must match across staff.
+5. **Booking questions:** keep name + phone; phone is what a barber actually uses.
+   Turn on "Requires confirmation" only if they want to approve each booking by hand.
+6. **Reminders:** Cal.com emails the customer; SMS reminders need a paid plan on Cal.com,
+   so most shops rely on the email plus the calendar invite.
+7. **Put it in the client JSON:**
+
+```json
+"booking": {
+  "mode": "schedule",
+  "schedule": {
+    "staff": [
+      { "name": "Иван", "username": "ivan-barber", "note": "собственик" },
+      { "name": "Георги", "username": "georgi-barber" }
+    ],
+    "services": [
+      { "name": "Мъжко подстригване", "slug": "podstrigvane", "duration": 40, "price": "22 €" },
+      { "name": "Оформяне на брада", "slug": "brada", "duration": 25, "price": "14 €" }
+    ]
+  }
+}
+```
+
+Remove `"demo": true` (or leave it out) and push. The embed follows the page's look
+(`theme` can force `light`/`dark`) and uses the client's accent colour.
+
+If the shop already books through Fresha, Booksy or studio24, use `mode: "external"`
+with their link instead — do not run two calendars.
 
 The hero's second button follows the page: it goes to booking if present, else to the
 request form, else to prices. Override with `hero.ctaRequestHref`.

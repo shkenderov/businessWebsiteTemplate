@@ -1,0 +1,200 @@
+---
+/**
+ * Live booking: pick a service and a person, then the person's real calendar
+ * (Cal.com) appears inline with their actual availability. Bookings land in
+ * their Google/Apple calendar and the customer gets a confirmation and a
+ * reminder. In demo mode (no calendars yet) a realistic slot grid shows the
+ * same flow without booking anything.
+ */
+import type { Client } from '../lib/clients';
+import { telHref } from '../lib/clients';
+const { client } = Astro.props as { client: Client };
+const sch = client.booking!.schedule!;
+const { business } = client;
+const theme = sch.theme ?? (client.style === 'bold' ? 'dark' : 'light');
+const demo = !!sch.demo;
+const hours = sch.demoHours ?? { open: '10:00', close: '19:00', closedDays: [0, 1] };
+---
+
+<div
+  class="mt-8"
+  data-schedule
+  data-theme={theme}
+  data-demo={demo ? '1' : ''}
+  data-open={hours.open}
+  data-close={hours.close}
+  data-closed={hours.closedDays.join(',')}
+>
+  <!-- step 1: service -->
+  <div class="reveal">
+    <p class="text-sm font-semibold">1. Услуга</p>
+    <div class="mt-2 flex flex-wrap gap-2" role="radiogroup" aria-label="Услуга">
+      {sch.services.map((s, i) => (
+        <button type="button" class="chip" role="radio" aria-checked={i === 0 ? 'true' : 'false'} data-service={s.slug} data-duration={s.duration}>
+          <span class="font-semibold">{s.name}</span>
+          <span class="text-ink-soft"> · {s.duration} мин{s.price ? ` · ${s.price}` : ''}</span>
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <!-- step 2: person (hidden when there is only one) -->
+  {sch.staff.length > 1 && (
+    <div class="reveal mt-6">
+      <p class="text-sm font-semibold">2. При кого</p>
+      <div class="mt-2 flex flex-wrap gap-2" role="radiogroup" aria-label="При кого">
+        {sch.staff.map((m, i) => (
+          <button type="button" class="chip" role="radio" aria-checked={i === 0 ? 'true' : 'false'} data-staff={m.username}>
+            <span class="font-semibold">{m.name}</span>
+            {m.note && <span class="text-ink-soft"> · {m.note}</span>}
+          </button>
+        ))}
+      </div>
+    </div>
+  )}
+  {sch.staff.length === 1 && <span hidden data-staff={sch.staff[0].username} aria-checked="true"></span>}
+
+  <!-- step 3: the calendar -->
+  <div class="reveal mt-6">
+    <p class="text-sm font-semibold">{sch.staff.length > 1 ? '3.' : '2.'} Ден и час</p>
+
+    {demo ? (
+      <div class="surface mt-2 p-4 sm:p-6" data-demo-grid>
+        <div class="flex items-center justify-between gap-3">
+          <button type="button" class="btn-outline-dark !min-h-9 !px-3 text-sm" data-week="-1" aria-label="Предишна седмица">‹</button>
+          <span class="text-sm font-semibold" data-week-label></span>
+          <button type="button" class="btn-outline-dark !min-h-9 !px-3 text-sm" data-week="1" aria-label="Следваща седмица">›</button>
+        </div>
+        <div class="mt-4 grid grid-cols-7 gap-1.5 sm:gap-2" data-days></div>
+        <div class="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6" data-slots></div>
+        <p class="mt-4 hidden rounded-ui bg-slab px-4 py-3 text-[15px]" data-demo-summary role="status" aria-live="polite"></p>
+        <p class="mt-3 text-xs text-ink-soft">Примерен календар — не записва истински часове. В сайта на фирмата тук е нейният жив график.</p>
+      </div>
+    ) : (
+      <div class="surface mt-2 min-h-[520px] overflow-hidden" data-cal-host>
+        <p class="p-6 text-[15px] text-ink-soft" data-cal-loading>Зареждаме свободните часове…</p>
+      </div>
+    )}
+  </div>
+
+  <p class="mt-5 text-sm text-ink-soft">
+    Получавате потвърждение и напомняне преди часа. Промяна или отказ — от линка в потвърждението.
+    Предпочитате по телефона? <a href={telHref(business.phone)} class="font-medium text-heading underline-offset-4 hover:underline">{business.phoneDisplay}</a>
+  </p>
+</div>
+
+
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-schedule]');
+  if (root) {
+    const demo = root.dataset.demo === '1';
+    const theme = root.dataset.theme as 'auto' | 'light' | 'dark';
+
+    // ── pickers ───────────────────────────────────────────────────────
+    function pick(group: string, el: HTMLElement) {
+      root!.querySelectorAll<HTMLElement>(`[data-${group}]`).forEach((b) => b.setAttribute('aria-checked', b === el ? 'true' : 'false'));
+      render();
+    }
+    root.querySelectorAll<HTMLElement>('[data-service]').forEach((b) => b.addEventListener('click', () => pick('service', b)));
+    root.querySelectorAll<HTMLElement>('[data-staff]').forEach((b) => b.addEventListener('click', () => pick('staff', b)));
+    const chosen = (group: string) => root!.querySelector<HTMLElement>(`[data-${group}][aria-checked="true"]`);
+
+    // ── real mode: Cal.com inline embed ───────────────────────────────
+    let embedLoaded: Promise<void> | null = null;
+    function loadEmbed(): Promise<void> {
+      if (embedLoaded) return embedLoaded;
+      embedLoaded = new Promise((resolve) => {
+        // Cal.com's official loader, verbatim: defines window.Cal and queues calls until embed.js arrives.
+        (function (C: any, A: string, L: string) {
+          const p = function (a: any, ar: any) { a.q.push(ar); };
+          const d = C.document;
+          C.Cal = C.Cal || function () {
+            const cal = C.Cal; const ar = arguments;
+            if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; const s = d.createElement('script'); s.src = A; s.onload = () => resolve(); d.head.appendChild(s); cal.loaded = true; }
+            if (ar[0] === L) {
+              const api: any = function () { p(api, arguments); };
+              const namespace = ar[1]; api.q = api.q || [];
+              if (typeof namespace === 'string') { cal.ns[namespace] = cal.ns[namespace] || api; p(cal.ns[namespace], ar); p(cal, ['initNamespace', namespace]); } else p(cal, ar);
+              return;
+            }
+            p(cal, ar);
+          };
+        })(window, 'https://app.cal.com/embed/embed.js', 'init');
+        (window as any).Cal('init', { origin: 'https://cal.com' });
+      });
+      return embedLoaded;
+    }
+    function renderReal() {
+      const host = root!.querySelector<HTMLElement>('[data-cal-host]');
+      const service = chosen('service')?.dataset.service, staff = chosen('staff')?.dataset.staff;
+      if (!host || !service || !staff) return;
+      host.innerHTML = '<div data-cal-mount style="min-height:520px"></div>';
+      loadEmbed().then(() => {
+        (window as any).Cal('inline', {
+          elementOrSelector: host.querySelector('[data-cal-mount]'),
+          calLink: `${staff}/${service}`,
+          config: { layout: 'month_view', theme },
+        });
+        (window as any).Cal('ui', { theme, hideEventTypeDetails: true, styles: { branding: { brandColor: getComputedStyle(document.documentElement).getPropertyValue('--color-hivis').trim() } } });
+      });
+    }
+
+    // ── demo mode: a believable grid that books nothing ───────────────
+    const DAYS = ['нд', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
+    const MONTHS = ['ян', 'фев', 'мар', 'апр', 'май', 'юни', 'юли', 'авг', 'сеп', 'окт', 'ное', 'дек'];
+    let weekOffset = 0;
+    let selectedDay: Date | null = null;
+    const toMin = (hhmm: string) => { const [h, m] = hhmm.split(':').map(Number); return h * 60 + m; };
+    const open = toMin(root.dataset.open!), close = toMin(root.dataset.close!);
+    const closedDays = (root.dataset.closed || '').split(',').filter(Boolean).map(Number);
+    // deterministic "taken" slots so the grid is stable while you click around
+    const taken = (d: Date, minute: number) => { let x = d.getDate() * 131 + d.getMonth() * 17 + minute; x = (x * 9301 + 49297) % 233280; return x / 233280 < 0.38; };
+
+    function renderDemo() {
+      const daysEl = root!.querySelector<HTMLElement>('[data-days]'), slotsEl = root!.querySelector<HTMLElement>('[data-slots]');
+      const label = root!.querySelector<HTMLElement>('[data-week-label]'), summary = root!.querySelector<HTMLElement>('[data-demo-summary]');
+      if (!daysEl || !slotsEl || !label) return;
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const start = new Date(today); start.setDate(today.getDate() + weekOffset * 7);
+      const days = Array.from({ length: 7 }, (_, i) => { const d = new Date(start); d.setDate(start.getDate() + i); return d; });
+      label.textContent = `${days[0].getDate()} ${MONTHS[days[0].getMonth()]} – ${days[6].getDate()} ${MONTHS[days[6].getMonth()]}`;
+      if (!selectedDay || selectedDay < days[0] || selectedDay > days[6]) selectedDay = days.find((d) => !closedDays.includes(d.getDay()) && d >= today) ?? null;
+      daysEl.innerHTML = '';
+      for (const d of days) {
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'day';
+        const closed = closedDays.includes(d.getDay()) || d < today;
+        b.disabled = closed;
+        b.setAttribute('aria-selected', selectedDay && d.getTime() === selectedDay.getTime() ? 'true' : 'false');
+        b.innerHTML = `<span class="text-ink-soft">${DAYS[d.getDay()]}</span><span class="mt-1 text-base font-semibold">${d.getDate()}</span>`;
+        b.addEventListener('click', () => { selectedDay = d; renderDemo(); });
+        daysEl.append(b);
+      }
+      slotsEl.innerHTML = '';
+      if (summary) summary.classList.add('hidden');
+      if (!selectedDay) { slotsEl.innerHTML = '<p class="col-span-full text-sm text-ink-soft">Няма работни дни в тази седмица.</p>'; return; }
+      const duration = Number(chosen('service')?.dataset.duration || 30);
+      const staffName = chosen('staff')?.querySelector('.font-semibold')?.textContent ?? '';
+      const serviceName = chosen('service')?.querySelector('.font-semibold')?.textContent ?? '';
+      for (let m = open; m + duration <= close; m += Math.max(15, Math.round(duration / 15) * 15)) {
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'slot';
+        b.textContent = `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+        b.disabled = taken(selectedDay, m);
+        b.addEventListener('click', () => {
+          slotsEl.querySelectorAll('.slot').forEach((s) => s.setAttribute('aria-pressed', 'false'));
+          b.setAttribute('aria-pressed', 'true');
+          if (summary) {
+            const d = selectedDay!;
+            summary.innerHTML = `<strong>${serviceName}</strong>${staffName ? ` при ${staffName}` : ''} — ${DAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}, ${b.textContent}. В истинския сайт тук потвърждавате с име и телефон и получавате SMS.`;
+            summary.classList.remove('hidden');
+          }
+        });
+        slotsEl.append(b);
+      }
+    }
+    root.querySelectorAll<HTMLElement>('[data-week]').forEach((b) => b.addEventListener('click', () => { weekOffset = Math.max(0, Math.min(8, weekOffset + Number(b.dataset.week))); renderDemo(); }));
+
+    function render() { demo ? renderDemo() : renderReal(); }
+    render();
+  }
+</script>

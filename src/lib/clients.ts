@@ -178,7 +178,21 @@ export interface Client {
   booking?: {
     title?: string;
     intro?: string;
-    mode: 'external' | 'request';
+    /** external: link/embed the app they already use. request: built-in form → owner's phone.
+     *  schedule: live booking with real availability through Cal.com (free), with a
+     *  service + staff picker on the page. */
+    mode: 'external' | 'request' | 'schedule';
+    schedule?: {
+      /** Cal.com usernames, one per barber/stylist. A single entry hides the picker. */
+      staff: { name: string; username: string; note?: string }[];
+      /** Each service is a Cal.com event type; `slug` is its URL slug (same on every staff account). */
+      services: { name: string; slug: string; duration: number; price?: string }[];
+      /** demo: no real calendars yet — show a realistic slot grid that does not book. */
+      demo?: boolean;
+      /** demo only: opening hours used to generate slots */
+      demoHours?: { open: string; close: string; closedDays: number[] };
+      theme?: 'auto' | 'light' | 'dark';
+    };
     // external
     url?: string;
     embed?: boolean;             // true: show the booking page in an iframe as well as the button

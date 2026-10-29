@@ -111,6 +111,27 @@ html[data-style="bold"] {
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-hivis) 35%, transparent);
   }
 }
+/* schedule picker */
+@utility chip {
+  @apply inline-flex items-center rounded-ui border border-slab-dark bg-field px-3.5 py-2 text-[15px] leading-tight transition-colors hover:border-heading;
+  min-height: 2.75rem;
+  &[aria-checked="true"] {
+    border-color: var(--color-hivis);
+    box-shadow: 0 0 0 1px var(--color-hivis) inset;
+  }
+}
+@utility day {
+  @apply flex flex-col items-center rounded-ui border border-slab-dark px-1 py-2 text-xs leading-tight transition-colors;
+  min-height: 3.5rem;
+  &[aria-selected="true"] { border-color: var(--color-hivis); box-shadow: 0 0 0 1px var(--color-hivis) inset; }
+  &:disabled { opacity: 0.35; cursor: not-allowed; }
+}
+@utility slot {
+  @apply rounded-ui border border-slab-dark px-2 py-2 text-center text-sm font-medium tabular-nums transition-colors hover:border-heading;
+  &:disabled { opacity: 0.3; text-decoration: line-through; cursor: not-allowed; }
+  &[aria-pressed="true"] { background: var(--color-hivis); color: var(--color-on-accent); border-color: var(--color-hivis); }
+}
+
 /* a card surface: white on paper in calm, frosted glass in bold */
 @utility surface {
   @apply rounded-ui border border-slab-dark bg-field;

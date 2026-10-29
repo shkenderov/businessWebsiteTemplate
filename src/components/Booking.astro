@@ -1,6 +1,7 @@
 ---
 import type { Client } from '../lib/clients';
 import { telHref } from '../lib/clients';
+import Schedule from './Schedule.astro';
 const { client } = Astro.props as { client: Client };
 const b = client.booking!;
 const { business } = client;
@@ -24,6 +25,8 @@ const { business } = client;
         )}
       </div>
     )}
+
+    {b.mode === 'schedule' && b.schedule && <Schedule client={client} />}
 
     {b.mode === 'request' && (
       <form
