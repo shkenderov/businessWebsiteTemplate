@@ -1,0 +1,91 @@
+---
+import type { Client } from '../lib/clients';
+import { telHref } from '../lib/clients';
+const { client } = Astro.props as { client: Client };
+const b = client.booking!;
+const { business } = client;
+---
+
+<section id="zapazi" class="scroll-mt-20 bg-paper">
+  <div class="container-site py-14 lg:py-20">
+    <h2 class="text-2xl font-bold sm:text-3xl">{b.title ?? 'Запазете час'}</h2>
+    {b.intro && <p class="mt-3 max-w-[56ch] text-[15px] leading-relaxed text-ink-soft">{b.intro}</p>}
+
+    {b.mode === 'external' && b.url && (
+      <div class="mt-8">
+        <div class="flex flex-col gap-3 sm:flex-row">
+          <a href={b.url} target="_blank" rel="noopener" class="btn-primary">{b.buttonLabel ?? 'Запазете час онлайн'}</a>
+          <a href={telHref(business.phone)} class="btn-outline-dark">Или позвънете: {business.phoneDisplay}</a>
+        </div>
+        {b.embed && (
+          <div class="mt-8 overflow-hidden rounded-ui border border-slab-dark bg-white">
+            <iframe src={b.url} title={b.title ?? 'Запазване на час'} class="block h-[640px] w-full" loading="lazy"></iframe>
+          </div>
+        )}
+      </div>
+    )}
+
+    {b.mode === 'request' && (
+      <form
+        class="mt-8 grid max-w-2xl gap-5 sm:grid-cols-2"
+        method="post"
+        action={b.endpoint || undefined}
+        data-lead-form
+        data-subject="Запазване на час"
+        data-endpoint={b.endpoint || ''}
+        data-phone={business.phone}
+        data-ok-text="Получихме заявката за час. Ще ви потвърдим по телефона."
+        novalidate
+      >
+        <div>
+          <label for="b-name" class="mb-1.5 block text-sm font-semibold">Име</label>
+          <input id="b-name" name="name" type="text" autocomplete="name" required class="field" />
+        </div>
+        <div>
+          <label for="b-phone" class="mb-1.5 block text-sm font-semibold">Телефон</label>
+          <input id="b-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" required class="field" placeholder="08…" />
+        </div>
+        {b.services?.length && (
+          <div class="sm:col-span-2">
+            <label for="b-service" class="mb-1.5 block text-sm font-semibold">Услуга</label>
+            <select id="b-service" name="service" class="field" required>
+              {b.services.map((s) => <option value={s}>{s}</option>)}
+            </select>
+          </div>
+        )}
+        <div>
+          <label for="b-date" class="mb-1.5 block text-sm font-semibold">Предпочитан ден</label>
+          <input id="b-date" name="date" type="date" class="field" required data-min-today />
+        </div>
+        {b.timeWindows?.length && (
+          <div>
+            <label for="b-time" class="mb-1.5 block text-sm font-semibold">Час</label>
+            <select id="b-time" name="time" class="field">
+              {b.timeWindows.map((t) => <option value={t}>{t}</option>)}
+            </select>
+          </div>
+        )}
+        {b.noteLabel && (
+          <div class="sm:col-span-2">
+            <label for="b-note" class="mb-1.5 block text-sm font-semibold">{b.noteLabel}</label>
+            <textarea id="b-note" name="note" rows="3" class="field" placeholder={b.noteHint ?? ''}></textarea>
+          </div>
+        )}
+        <input type="text" name="website" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true" data-skip />
+        <div class="sm:col-span-2 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <button type="submit" class="btn-primary shrink-0 whitespace-nowrap">Изпратете заявка за час</button>
+          <p class="text-sm text-ink-soft">Ще потвърдим часа по телефона. Спешно? Позвънете на {business.phoneDisplay}.</p>
+        </div>
+        <p class="sm:col-span-2 hidden rounded-ui bg-slab px-4 py-3 text-[15px]" role="status" aria-live="polite" data-status></p>
+      </form>
+    )}
+  </div>
+</section>
+
+<script>
+  import { wireLeadForms } from '../scripts/leadForm';
+  document.querySelectorAll<HTMLInputElement>('input[data-min-today]').forEach((i) => {
+    i.min = new Date().toISOString().slice(0, 10);
+  });
+  wireLeadForms();
+</script>

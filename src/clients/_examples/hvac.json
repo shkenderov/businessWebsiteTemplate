@@ -145,5 +145,125 @@
   "footer": {
     "credit": "",
     "creditUrl": ""
+  },
+  "sections": [
+    "hero",
+    "trust",
+    "prices",
+    "services",
+    "process",
+    "reviews",
+    "contact"
+  ],
+  "prices": {
+    "title": "Какъв климатик ви трябва и колко струва",
+    "intro": "Въведете помещението и ще ви покажем подходящата мощност и ориентировъчна цена за уред с монтаж.",
+    "mode": "calculator",
+    "calculator": {
+      "kind": "tiers",
+      "quantityInput": "area",
+      "currency": "€",
+      "resultLabel": "Препоръчителна мощност и цена с монтаж",
+      "resultHint": "Диапазонът покрива от добър базов до премиум модел. Точна оферта след кратък разговор.",
+      "inputs": [
+        {
+          "id": "area",
+          "label": "Площ на помещението",
+          "type": "number",
+          "min": 8,
+          "max": 80,
+          "step": 1,
+          "default": 20,
+          "unit": "кв. м"
+        },
+        {
+          "id": "exposure",
+          "label": "Изложение",
+          "type": "select",
+          "default": "mixed",
+          "options": [
+            {
+              "label": "Северно / сенчесто",
+              "value": "north",
+              "factor": 0.9
+            },
+            {
+              "label": "Смесено",
+              "value": "mixed",
+              "factor": 1
+            },
+            {
+              "label": "Южно / много слънце",
+              "value": "south",
+              "factor": 1.2
+            }
+          ]
+        },
+        {
+          "id": "floor",
+          "label": "Етаж",
+          "type": "select",
+          "default": "middle",
+          "options": [
+            {
+              "label": "Междинен етаж",
+              "value": "middle",
+              "factor": 1
+            },
+            {
+              "label": "Последен етаж или къща",
+              "value": "top",
+              "factor": 1.15
+            }
+          ]
+        },
+        {
+          "id": "heating",
+          "label": "Ще се отоплявам с него през зимата",
+          "type": "checkbox",
+          "add": [
+            80,
+            150
+          ]
+        }
+      ],
+      "tiers": [
+        {
+          "upTo": 18,
+          "label": "9 000 BTU",
+          "price": [
+            520,
+            950
+          ]
+        },
+        {
+          "upTo": 26,
+          "label": "12 000 BTU",
+          "price": [
+            620,
+            1150
+          ]
+        },
+        {
+          "upTo": 38,
+          "label": "18 000 BTU",
+          "price": [
+            850,
+            1600
+          ]
+        },
+        {
+          "upTo": 60,
+          "label": "24 000 BTU",
+          "price": [
+            1100,
+            2100
+          ]
+        }
+      ]
+    },
+    "note": "Ориентировъчно за стандартен монтаж до 3 м тръбен път. Монтажът включва конзола, тръби, кабел и пускане. Не е оферта.",
+    "cta": "Заявете оферта",
+    "ctaHref": "#zayavka"
   }
 }

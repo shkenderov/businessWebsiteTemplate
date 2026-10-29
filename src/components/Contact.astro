@@ -1,0 +1,128 @@
+---
+import type { Client } from '../lib/clients';
+import { telHref, viberHref } from '../lib/clients';
+import ViberIcon from './ViberIcon.astro';
+const { client } = Astro.props as { client: Client };
+const { form, business } = client;
+const showForm = form?.enabled !== false;
+const mapSrc = business.mapQuery
+  ? `https://www.google.com/maps?q=${encodeURIComponent(business.mapQuery)}&output=embed&hl=bg`
+  : null;
+---
+
+<section id={showForm ? 'zayavka' : 'kontakt'} class="scroll-mt-20 bg-paper">
+  <div class="container-site py-14 lg:py-20">
+    <div class:list={['grid gap-12 lg:gap-16', showForm ? 'lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]' : 'lg:grid-cols-2']}>
+      {showForm && (
+        <div>
+          <h2 class="text-2xl font-bold sm:text-3xl">{form.title ?? 'Заявете оглед'}</h2>
+          {form.intro && <p class="mt-3 max-w-[52ch] text-[15px] leading-relaxed text-ink-soft">{form.intro}</p>}
+
+          <form
+            class="mt-8 grid gap-5 sm:grid-cols-2"
+            method="post"
+            action={form.endpoint || undefined}
+            data-lead-form
+            data-subject={form.title ?? 'Заявка'}
+            data-endpoint={form.endpoint || ''}
+            data-phone={business.phone}
+            novalidate
+          >
+            <div>
+              <label for="f-name" class="mb-1.5 block text-sm font-semibold">Име</label>
+              <input id="f-name" name="name" type="text" autocomplete="name" required class="field" />
+            </div>
+            <div>
+              <label for="f-phone" class="mb-1.5 block text-sm font-semibold">Телефон</label>
+              <input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" required class="field" placeholder="08…" />
+            </div>
+            <div class="sm:col-span-2">
+              <label for="f-area" class="mb-1.5 block text-sm font-semibold">{form.areaLabel ?? 'Квартал'}</label>
+              <input id="f-area" name="area" type="text" class="field" list="areas" />
+              {business.areas && (
+                <datalist id="areas">{business.areas.map((a) => <option value={a} />)}</datalist>
+              )}
+            </div>
+            <div class="sm:col-span-2">
+              <label for="f-problem" class="mb-1.5 block text-sm font-semibold">{form.problemLabel ?? 'Какъв е проблемът?'}</label>
+              <textarea id="f-problem" name="problem" rows="4" class="field" placeholder={form.problemHint ?? ''}></textarea>
+            </div>
+            <input type="text" name="website" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true" data-skip />
+
+            <div class="sm:col-span-2 flex flex-col gap-3 sm:flex-row sm:items-center">
+              <button type="submit" class="btn-primary shrink-0 whitespace-nowrap">{form.submitLabel ?? 'Изпратете заявка'}</button>
+              <p class="text-sm text-ink-soft">Снимка на проблема можете да изпратите по Viber на {business.phoneDisplay}.</p>
+            </div>
+            <p class="sm:col-span-2 hidden rounded-ui bg-slab px-4 py-3 text-[15px]" role="status" aria-live="polite" data-status></p>
+          </form>
+        </div>
+      )}
+
+      <aside id={showForm ? 'kontakt' : undefined} class:list={['scroll-mt-20', !showForm && 'lg:col-span-2 lg:grid lg:grid-cols-2 lg:gap-16']}>
+        <div>
+        <h2 class="text-2xl font-bold sm:text-3xl">Контакт</h2>
+        <dl class="mt-6 space-y-5 text-[15px]">
+          <div>
+            <dt class="text-sm font-semibold text-ink-soft">Телефон</dt>
+            <dd class="mt-1 flex flex-wrap items-center gap-3">
+              <a href={telHref(business.phone)} class="font-display text-xl font-bold text-graphite hover:text-hivis">{business.phoneDisplay}</a>
+              {business.viber && (
+                <a href={viberHref(business.phone)} class="inline-flex items-center gap-1.5 rounded-ui border border-slab-dark px-3 py-1.5 text-sm font-medium hover:border-graphite">
+                  <ViberIcon class="size-4 text-[#7360f2]" />
+                  Пишете ни във Viber
+                </a>
+              )}
+            </dd>
+          </div>
+          {business.hours && (
+            <div>
+              <dt class="text-sm font-semibold text-ink-soft">Работно време</dt>
+              <dd class="mt-1">{business.hours}</dd>
+            </div>
+          )}
+          {business.address && (
+            <div>
+              <dt class="text-sm font-semibold text-ink-soft">Адрес</dt>
+              <dd class="mt-1">{business.address}</dd>
+            </div>
+          )}
+          {business.areas && business.areas.length > 0 && (
+            <div>
+              <dt class="text-sm font-semibold text-ink-soft">Работим в</dt>
+              <dd class="mt-1 leading-relaxed">{business.areas.join(', ')} — и в цяла София.</dd>
+            </div>
+          )}
+          {(business.instagram || business.facebook) && (
+            <div>
+              <dt class="text-sm font-semibold text-ink-soft">Последвайте ни</dt>
+              <dd class="mt-1 flex gap-4">
+                {business.instagram && <a href={business.instagram} target="_blank" rel="noopener" class="underline-offset-4 hover:underline">Instagram</a>}
+                {business.facebook && <a href={business.facebook} target="_blank" rel="noopener" class="underline-offset-4 hover:underline">Facebook</a>}
+              </dd>
+            </div>
+          )}
+        </dl>
+        </div>
+
+        {mapSrc && (
+          <div class:list={['mt-6 overflow-hidden rounded-ui border border-slab-dark bg-slab', !showForm && 'lg:mt-0']}>
+            <iframe
+              src={mapSrc}
+              title={`${business.name} на картата`}
+              width="100%"
+              height={showForm ? '240' : '360'}
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              class:list={['block w-full', !showForm && 'lg:h-full lg:min-h-[360px]']}
+            ></iframe>
+          </div>
+        )}
+      </aside>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { wireLeadForms } from '../scripts/leadForm';
+  wireLeadForms();
+</script>

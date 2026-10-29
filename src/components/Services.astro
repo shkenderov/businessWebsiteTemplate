@@ -2,14 +2,15 @@
 import type { Client } from '../lib/clients';
 import { imageUrl, imageSrcset } from '../lib/clients';
 const { client } = Astro.props as { client: Client };
+const note = client.servicesNote ?? 'Не откривате вашия случай? Позвънете — ако не можем да помогнем, ще ви кажем откровено и ще ви насочим към колега.';
 ---
 
 <section id="uslugi" class="scroll-mt-20 bg-slab">
   <div class="container-site py-14 lg:py-20">
-    <h2 class="text-2xl font-bold sm:text-3xl">С какво можем да помогнем</h2>
+    <h2 class="text-2xl font-bold sm:text-3xl">{client.servicesTitle ?? 'С какво можем да помогнем'}</h2>
 
     <div class="mt-8 grid gap-x-8 gap-y-10 sm:grid-cols-2">
-      {client.services.map((s) => (
+      {client.services!.map((s) => (
         <article>
           <img
             src={imageUrl(s.image, 1024)}
@@ -28,8 +29,6 @@ const { client } = Astro.props as { client: Client };
       ))}
     </div>
 
-    <p class="mt-8 text-[15px] text-ink-soft">
-      Не откривате вашия случай? Позвънете — ако не можем да помогнем, ще ви кажем откровено и ще ви насочим към колега.
-    </p>
+    {note && <p class="mt-8 text-[15px] text-ink-soft">{note}</p>}
   </div>
 </section>

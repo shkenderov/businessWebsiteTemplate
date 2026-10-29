@@ -1,28 +1,56 @@
 ---
-import type { Client } from '../lib/clients';
+import type { Client, SectionId } from '../lib/clients';
+import { sectionsOf } from '../lib/clients';
 import Base from '../layouts/Base.astro';
 import Header from './Header.astro';
 import Hero from './Hero.astro';
 import TrustStrip from './TrustStrip.astro';
 import Services from './Services.astro';
+import Prices from './Prices.astro';
 import Process from './Process.astro';
+import Gallery from './Gallery.astro';
+import Team from './Team.astro';
 import Reviews from './Reviews.astro';
-import RequestForm from './RequestForm.astro';
+import Booking from './Booking.astro';
+import Contact from './Contact.astro';
 import Footer from './Footer.astro';
 import StickyCallBar from './StickyCallBar.astro';
 
 const { client } = Astro.props as { client: Client };
+
+// A section only renders when it is listed AND its data exists.
+const has: Record<SectionId, boolean> = {
+  hero: true,
+  trust: !!client.trust?.length,
+  services: !!client.services?.length,
+  prices: !!client.prices,
+  process: !!client.process?.length,
+  gallery: !!client.gallery?.images?.length,
+  team: !!client.team?.members?.length,
+  reviews: !!client.reviews?.items?.length,
+  booking: !!client.booking,
+  contact: true,
+};
+const sections = sectionsOf(client).filter((s) => has[s]);
 ---
 
 <Base client={client}>
-  <Header client={client} />
+  <Header client={client} sections={sections} />
   <main>
-    <Hero client={client} />
-    <TrustStrip client={client} />
-    <Services client={client} />
-    <Process client={client} />
-    <Reviews client={client} />
-    <RequestForm client={client} />
+    {sections.map((s) => {
+      switch (s) {
+        case 'hero': return <Hero client={client} />;
+        case 'trust': return <TrustStrip client={client} />;
+        case 'services': return <Services client={client} />;
+        case 'prices': return <Prices client={client} />;
+        case 'process': return <Process client={client} />;
+        case 'gallery': return <Gallery client={client} />;
+        case 'team': return <Team client={client} />;
+        case 'reviews': return <Reviews client={client} />;
+        case 'booking': return <Booking client={client} />;
+        case 'contact': return <Contact client={client} />;
+      }
+    })}
   </main>
   <Footer client={client} />
   <StickyCallBar client={client} />

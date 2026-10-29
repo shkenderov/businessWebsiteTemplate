@@ -144,5 +144,122 @@
   "footer": {
     "credit": "",
     "creditUrl": ""
+  },
+  "sections": [
+    "hero",
+    "trust",
+    "services",
+    "prices",
+    "process",
+    "reviews",
+    "contact"
+  ],
+  "prices": {
+    "title": "Ориентировъчна цена",
+    "intro": "Сметнете приблизително колко ще струва, преди да ни се обадите. Точната цена казваме след оглед — безплатно.",
+    "mode": "calculator",
+    "calculator": {
+      "kind": "rate",
+      "quantityInput": "area",
+      "currency": "€",
+      "resultLabel": "Ориентировъчна цена за ремонт",
+      "resultHint": "Включва материали и труд. Точна оферта след оглед.",
+      "inputs": [
+        {
+          "id": "area",
+          "label": "Площ на покрива",
+          "type": "number",
+          "min": 10,
+          "max": 600,
+          "step": 5,
+          "default": 80,
+          "unit": "кв. м"
+        },
+        {
+          "id": "type",
+          "label": "Какво искате",
+          "type": "select",
+          "default": "repair",
+          "options": [
+            {
+              "label": "Ремонт на съществуващ покрив",
+              "value": "repair",
+              "rate": [
+                18,
+                35
+              ]
+            },
+            {
+              "label": "Нов покрив с керемиди",
+              "value": "tiles",
+              "rate": [
+                65,
+                120
+              ]
+            },
+            {
+              "label": "Нов ламаринен покрив",
+              "value": "metal",
+              "rate": [
+                45,
+                85
+              ]
+            },
+            {
+              "label": "Хидроизолация на плосък покрив",
+              "value": "flat",
+              "rate": [
+                22,
+                40
+              ]
+            }
+          ]
+        },
+        {
+          "id": "condition",
+          "label": "Състояние на конструкцията",
+          "type": "select",
+          "default": "ok",
+          "options": [
+            {
+              "label": "Добро — само покритието",
+              "value": "ok",
+              "factor": 1
+            },
+            {
+              "label": "Частична подмяна на дървения материал",
+              "value": "partial",
+              "factor": 1.25
+            },
+            {
+              "label": "Нова дървена конструкция",
+              "value": "new",
+              "factor": 1.6
+            }
+          ]
+        },
+        {
+          "id": "gutters",
+          "label": "Нови улуци и водосточни тръби",
+          "type": "checkbox",
+          "add": [
+            400,
+            900
+          ]
+        },
+        {
+          "id": "chimney",
+          "label": "Обшивка на комин",
+          "type": "checkbox",
+          "add": [
+            120,
+            250
+          ]
+        }
+      ]
+    },
+    "note": "Цените са ориентировъчни за София и региона и зависят от наклона, достъпа и избраните материали. Не са оферта.",
+    "cta": "Заявете безплатен оглед",
+    "ctaHref": "#zayavka"
   }
 }

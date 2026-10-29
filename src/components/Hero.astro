@@ -1,12 +1,14 @@
 ---
 import type { Client } from '../lib/clients';
-import { imageUrl, imageSrcset, telHref } from '../lib/clients';
+import { imageUrl, imageSrcset, telHref, requestHref, requestLabel } from '../lib/clients';
 const { client } = Astro.props as { client: Client };
 const { hero, business } = client;
 const ratingText = business.rating?.toFixed(1).replace('.', ',');
 const showRating = Boolean(business.rating && business.reviewCount);
 const posDesktop = hero.imagePosition ?? '50% 50%';
 const posMobile = hero.imagePositionMobile ?? posDesktop;
+const reqHref = requestHref(client);
+const reqLabel = requestLabel(client);
 ---
 
 <!--
@@ -35,7 +37,7 @@ const posMobile = hero.imagePositionMobile ?? posDesktop;
   <div class="container-site pb-24 pt-10 sm:pb-28 lg:py-28">
     <!-- legibility, layer 2: a near-solid panel behind the text, so contrast never depends on the photo -->
     <div class="-mx-4 max-w-[40rem] rounded-ui bg-graphite/75 px-4 py-6 sm:mx-0 sm:px-7 sm:py-8 lg:bg-graphite/70">
-      <h1 class="max-w-[20ch] text-[1.9rem] font-bold leading-[1.1] !text-white sm:text-4xl lg:text-[2.75rem] lg:leading-[1.08]">
+      <h1 class="max-w-[24ch] text-[1.9rem] font-bold leading-[1.1] !text-white sm:text-4xl lg:text-[2.75rem] lg:leading-[1.08]">
         {hero.headline}
       </h1>
       <p class="mt-5 max-w-[52ch] text-base leading-relaxed text-white/90 sm:text-lg">
@@ -47,7 +49,7 @@ const posMobile = hero.imagePositionMobile ?? posDesktop;
           {hero.ctaCall ?? 'Позвънете'}: {business.phoneDisplay}
         </a>
         <!-- on phones the sticky bar already offers this, so it is not repeated here -->
-        <a href="#zayavka" class="btn-outline-light hidden whitespace-nowrap sm:inline-flex">{hero.ctaRequest ?? 'Заявете оглед'}</a>
+        <a href={reqHref} class="btn-outline-light hidden whitespace-nowrap sm:inline-flex">{reqLabel}</a>
       </div>
 
       {showRating && (

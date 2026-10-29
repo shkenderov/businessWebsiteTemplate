@@ -1,0 +1,187 @@
+---
+import type { Client } from '../lib/clients';
+import { requestHref, requestLabel } from '../lib/clients';
+const { client } = Astro.props as { client: Client };
+const p = client.prices!;
+const cta = p.cta ?? requestLabel(client);
+const ctaHref = p.ctaHref ?? requestHref(client);
+const calc = p.calculator;
+const currency = calc?.currency ?? '€';
+---
+
+<section id="ceni" class="scroll-mt-20 bg-slab">
+  <div class="container-site py-14 lg:py-20">
+    <h2 class="text-2xl font-bold sm:text-3xl">{p.title ?? 'Цени'}</h2>
+    {p.intro && <p class="mt-3 max-w-[56ch] text-[15px] leading-relaxed text-ink-soft">{p.intro}</p>}
+
+    {/* ── list ─────────────────────────────────────────────────────────── */}
+    {p.mode === 'list' && p.groups && (
+      <div class:list={['mt-8 grid gap-10', p.groups.length > 1 && 'md:grid-cols-2']}>
+        {p.groups.map((g) => (
+          <div>
+            {g.title && <h3 class="mb-3 text-lg font-bold">{g.title}</h3>}
+            <ul class="divide-y divide-slab-dark border-y border-slab-dark">
+              {g.items.map((it) => (
+                <li class="flex items-baseline justify-between gap-4 py-3">
+                  <div class="min-w-0">
+                    <span class="text-[15px] font-medium">{it.name}</span>
+                    {it.duration && <span class="ml-2 text-sm text-ink-soft">{it.duration}</span>}
+                    {it.note && <span class="block text-sm text-ink-soft">{it.note}</span>}
+                  </div>
+                  <span class="shrink-0 font-display text-[15px] font-bold text-graphite">{it.price}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    )}
+
+    {/* ── lookup ───────────────────────────────────────────────────────── */}
+    {p.mode === 'lookup' && p.lookup && (
+      <div class="mt-8 max-w-2xl rounded-ui bg-white p-5 sm:p-7" data-lookup>
+        <div class="grid gap-4 sm:grid-cols-3">
+          {p.lookup.labels.map((label, i) => (
+            <div>
+              <label for={`lookup-${i}`} class="mb-1.5 block text-sm font-semibold">{label}</label>
+              <select id={`lookup-${i}`} class="field" data-level={i} disabled={i > 0}>
+                <option value="">—</option>
+              </select>
+            </div>
+          ))}
+        </div>
+        <p class="mt-6 min-h-[3.5rem] rounded-ui bg-slab px-4 py-3 text-[15px]" data-lookup-result>
+          {p.lookup.placeholder ?? 'Изберете, за да видите цената.'}
+        </p>
+        <script type="application/json" data-lookup-tree set:html={JSON.stringify(p.lookup.tree)} />
+      </div>
+    )}
+
+    {/* ── calculator ───────────────────────────────────────────────────── */}
+    {p.mode === 'calculator' && calc && (
+      <form class="mt-8 max-w-2xl rounded-ui bg-white p-5 sm:p-7" data-calculator novalidate>
+        <div class="grid gap-5 sm:grid-cols-2">
+          {calc.inputs.map((inp) => (
+            <div class:list={[inp.type === 'checkbox' && 'sm:col-span-2']}>
+              {inp.type === 'number' && (
+                <>
+                  <label for={`calc-${inp.id}`} class="mb-1.5 block text-sm font-semibold">{inp.label}</label>
+                  <div class="flex items-center gap-2">
+                    <input id={`calc-${inp.id}`} name={inp.id} type="number" inputmode="decimal" class="field" min={inp.min} max={inp.max} step={inp.step ?? 1} value={String(inp.default ?? inp.min ?? 1)} />
+                    {inp.unit && <span class="shrink-0 text-sm text-ink-soft">{inp.unit}</span>}
+                  </div>
+                </>
+              )}
+              {inp.type === 'select' && (
+                <>
+                  <label for={`calc-${inp.id}`} class="mb-1.5 block text-sm font-semibold">{inp.label}</label>
+                  <select id={`calc-${inp.id}`} name={inp.id} class="field">
+                    {inp.options?.map((o) => <option value={o.value} selected={o.value === inp.default}>{o.label}</option>)}
+                  </select>
+                </>
+              )}
+              {inp.type === 'checkbox' && (
+                <label class="flex items-center gap-3 text-[15px]">
+                  <input name={inp.id} type="checkbox" class="size-5 accent-hivis" checked={inp.default === true} />
+                  {inp.label}
+                </label>
+              )}
+            </div>
+          ))}
+        </div>
+        <div class="mt-6 rounded-ui bg-graphite px-5 py-4 text-white">
+          <span class="block text-sm text-white/70">{calc.resultLabel ?? 'Ориентировъчна цена'}</span>
+          <span class="block font-display text-2xl font-bold" data-calc-result aria-live="polite">—</span>
+          {calc.resultHint && <span class="mt-1 block text-sm text-white/70">{calc.resultHint}</span>}
+        </div>
+        <script type="application/json" data-calc-config set:html={JSON.stringify({ ...calc, currency })} />
+      </form>
+    )}
+
+    {p.note && <p class="mt-5 max-w-[64ch] text-sm text-ink-soft">{p.note}</p>}
+
+    <a href={ctaHref} class="btn-primary mt-8">{cta}</a>
+  </div>
+</section>
+
+<script>
+  // ── lookup: cascading selects down a tree ────────────────────────────
+  document.querySelectorAll<HTMLElement>('[data-lookup]').forEach((root) => {
+    const tree = JSON.parse(root.querySelector('[data-lookup-tree]')!.textContent || '{}');
+    const selects = Array.from(root.querySelectorAll<HTMLSelectElement>('select[data-level]'));
+    const result = root.querySelector<HTMLElement>('[data-lookup-result]')!;
+    const placeholder = result.textContent;
+
+    function fill(select: HTMLSelectElement, node: any) {
+      select.innerHTML = '<option value="">—</option>';
+      Object.keys(node ?? {}).forEach((k) => {
+        const o = document.createElement('option');
+        o.value = k; o.textContent = k; select.append(o);
+      });
+      select.disabled = false;
+    }
+
+    function nodeAt(level: number) {
+      let node = tree;
+      for (let i = 0; i < level; i++) node = node?.[selects[i].value];
+      return node;
+    }
+
+    fill(selects[0], tree);
+    selects.forEach((sel, i) => {
+      sel.addEventListener('change', () => {
+        for (let j = i + 1; j < selects.length; j++) { selects[j].innerHTML = '<option value="">—</option>'; selects[j].disabled = true; }
+        const node = nodeAt(i + 1);
+        if (node && typeof node === 'object' && selects[i + 1]) fill(selects[i + 1], node);
+        if (node && typeof node !== 'object') {
+          result.innerHTML = `<strong class="font-display text-lg">${String(node)}</strong>`;
+        } else if (!sel.value) {
+          result.textContent = placeholder;
+        } else {
+          result.textContent = 'Изберете следващото, за да видите цената.';
+        }
+      });
+    });
+  });
+
+  // ── calculator: rate × quantity × factors + extras, or tiers ────────
+  document.querySelectorAll<HTMLFormElement>('form[data-calculator]').forEach((form) => {
+    const cfg = JSON.parse(form.querySelector('[data-calc-config]')!.textContent || '{}');
+    const out = form.querySelector<HTMLElement>('[data-calc-result]')!;
+    const fmt = (n: number) => Math.round(n).toLocaleString('bg-BG');
+
+    function compute() {
+      const data = new FormData(form);
+      const qty = Number(data.get(cfg.quantityInput)) || 0;
+      let factor = 1;
+      let rate: [number, number] | null = null;
+      let extra: [number, number] = [0, 0];
+      for (const inp of cfg.inputs) {
+        if (inp.type === 'select') {
+          const opt = inp.options?.find((o: any) => o.value === data.get(inp.id));
+          if (opt?.factor) factor *= opt.factor;
+          if (opt?.rate) rate = opt.rate;
+        } else if (inp.type === 'checkbox' && data.get(inp.id) && inp.add) {
+          extra = [extra[0] + inp.add[0], extra[1] + inp.add[1]];
+        }
+      }
+      let lo = 0, hi = 0, label = '';
+      if (cfg.kind === 'rate') {
+        if (!rate || !qty) { out.textContent = '—'; return; }
+        lo = rate[0] * qty * factor + extra[0];
+        hi = rate[1] * qty * factor + extra[1];
+      } else {
+        const eff = qty * factor;
+        const tier = (cfg.tiers ?? []).find((t: any) => eff <= t.upTo) ?? (cfg.tiers ?? []).at(-1);
+        if (!tier || !qty) { out.textContent = '—'; return; }
+        lo = tier.price[0] + extra[0];
+        hi = tier.price[1] + extra[1];
+        label = tier.label ? `${tier.label} · ` : '';
+      }
+      out.textContent = `${label}от ${fmt(lo)} до ${fmt(hi)} ${cfg.currency}`;
+    }
+    form.addEventListener('input', compute);
+    form.addEventListener('change', compute);
+    compute();
+  });
+</script>

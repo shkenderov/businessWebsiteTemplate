@@ -1,6 +1,6 @@
 ---
 import type { Client } from '../lib/clients';
-import { telHref } from '../lib/clients';
+import { telHref, requestHref, requestLabel } from '../lib/clients';
 const { client } = Astro.props as { client: Client };
 const { business, hero } = client;
 ---
@@ -13,5 +13,5 @@ const { business, hero } = client;
     </svg>
     {hero.ctaCall ?? 'Позвънете'}
   </a>
-  <a href="#zayavka" class="btn-outline-dark !min-h-12 text-[15px]">{hero.ctaRequest ?? 'Заявете оглед'}</a>
+  <a href={requestHref(client)} class="btn-outline-dark !min-h-12 text-[15px]">{requestLabel(client)}</a>
 </div>

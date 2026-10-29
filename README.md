@@ -6,14 +6,23 @@ Every client is a single JSON file; the page is generated from it.
 
 Live demo: https://shkenderov.github.io/businessWebsiteTemplate/ — a generic
 "Вашата фирма" page with placeholder identity, so it shows the structure without
-pretending to be anyone. Trade-specific copy packs (roofer, HVAC) live in
-`src/clients/_examples/`; they are starting points, not deployed pages.
+pretending to be anyone.
+
+Starting packs in `src/clients/_examples/` (never deployed on their own):
+
+| Pack | Sections | Prices module | Booking |
+| --- | --- | --- | --- |
+| `roofer` | trades layout | calculator (m² × roof type × condition + extras) | request a visit |
+| `hvac` | trades layout | calculator (room → BTU class → price range) | request a quote |
+| `barber`, `salon` | prices, gallery, team, reviews, booking | price list with durations | request a time slot |
+| `phone-repair` | lookup, trust, services, reviews | brand → model → repair → price | ask for a price |
+| `auto` | trust, services, prices, booking, reviews | price list by job | book tyre change / service |
 
 ## Add a client in 10 minutes
 
 ```bash
 npm install
-npm run new-client -- yordan-pokrivi --from roofer   # or --from hvac
+npm run new-client -- yordan-pokrivi --from roofer   # or hvac, barber, salon, phone-repair, auto
 ```
 
 Edit `src/clients/yordan-pokrivi.json`:
@@ -33,6 +42,29 @@ Edit `src/clients/yordan-pokrivi.json`:
 
 Push to `main` and the site rebuilds. The client's page is at `/<slug>/`.
 
+## Sections and modules
+
+`sections` in the client JSON sets the page order; leave it out for the trades layout.
+Available: `hero`, `trust`, `services`, `prices`, `process`, `gallery`, `team`,
+`reviews`, `booking`, `contact`. A section renders only when its data is present.
+
+**Prices** (`prices.mode`):
+- `list` — groups of `{ name, price, duration?, note? }`. Salons, auto, anything with a menu.
+- `lookup` — cascading selects down `lookup.tree` to a price. Phone repair: brand → model → repair.
+- `calculator` — `kind: "rate"` (rate per unit from a select × quantity × factors + checkbox extras)
+  or `kind: "tiers"` (quantity × factors → tier → price range). Roofs, HVAC, cleaning, moving.
+
+**Booking** (`booking.mode`):
+- `external` — `url` to the app the business already uses (Fresha, Booksy, Cal.com…), with
+  `embed: true` to show it inline as well. Prefer this when they have one.
+- `request` — built-in form: service, preferred day, time window, note. Reaches the owner's
+  phone by SMS (or `endpoint`). They confirm by calling back.
+
+**Gallery** and **team** take photo lists; the first gallery image is shown larger.
+
+The hero's second button follows the page: it goes to booking if present, else to the
+request form, else to prices. Override with `hero.ctaRequestHref`.
+
 ## Images
 
 `hero.image` and `services[].image` accept either:
@@ -47,7 +79,11 @@ better and removes the dependency on Unsplash.
 Stock photos used by the demo and examples (Unsplash licence, free for commercial use):
 Sergej (roof tiles), Zohair Mirza (roof repair), Sergio Martins (metal roofing),
 Michael Jasmund (tile pattern), alpha innotec (heat pumps and AC units),
-Everett Pachmann, Illia Horokhovsky (AC units).
+Everett Pachmann, Illia Horokhovsky (AC units); Agustin Fernandez, Peter Vimalis,
+delfina pan, Nate Johnston, Andrea Donato, Allef Vinicius, Nathon Oski, Barney Goodman,
+Jason Leung, Element5 Digital, T (barbers and salons); Fotografia Lui Vlad, Jilbert Ebrahimi,
+Pierre Bamin, Katelyn G (phones); Mehmet Talha Onuk, Tim Mossholder, Erik Mclean,
+Kate Ibragimova (auto).
 
 ## The request form
 
@@ -63,9 +99,10 @@ Static site, no backend. Two modes, chosen by `form.endpoint`:
 
 ```
 src/clients/*.json        one file per client (slug = file name)
-src/clients/_examples/    roofer.json, hvac.json — copy packs for new-client (not deployed)
-src/components/           Header, Hero, TrustStrip, Services, Process, Reviews,
-                          RequestForm, Footer, StickyCallBar, LandingPage
+src/clients/_examples/    roofer, hvac, barber, salon, phone-repair, auto — packs for new-client
+src/components/           Header, Hero, TrustStrip, Services, Prices, Process, Gallery,
+                          Team, Reviews, Booking, Contact, Footer, StickyCallBar, LandingPage
+src/scripts/leadForm.ts   shared submit logic for every request/booking form
 src/layouts/Base.astro    <head>, SEO, LocalBusiness JSON-LD, per-client theme vars
 src/lib/clients.ts        config types + helpers (image URLs, tel/viber links)
 src/pages/index.astro     the client marked "default": true

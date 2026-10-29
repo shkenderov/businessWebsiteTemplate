@@ -1,14 +1,24 @@
 ---
-import type { Client } from '../lib/clients';
+import type { Client, SectionId } from '../lib/clients';
 import { telHref } from '../lib/clients';
-const { client } = Astro.props as { client: Client };
+const { client, sections } = Astro.props as { client: Client; sections: SectionId[] };
 const { business } = client;
-const nav = [
-  ['#uslugi', 'Услуги'],
-  ['#kak-rabotim', 'Как работим'],
-  ['#otzivi', 'Отзиви'],
-  ['#kontakt', 'Контакт'],
-];
+
+// Navigation follows the sections that exist; contact is always last.
+const labels: Partial<Record<SectionId, [string, string]>> = {
+  services: ['#uslugi', 'Услуги'],
+  prices: ['#ceni', client.prices?.title ?? 'Цени'],
+  gallery: ['#galeria', client.gallery?.title ?? 'Галерия'],
+  team: ['#ekip', client.team?.title ?? 'Екип'],
+  process: ['#kak-rabotim', 'Как работим'],
+  reviews: ['#otzivi', 'Отзиви'],
+  booking: ['#zapazi', client.booking?.title ?? 'Запазете час'],
+};
+const nav = sections
+  .filter((s) => s in labels)
+  .map((s) => labels[s]!)
+  .slice(0, 4);
+nav.push(['#kontakt', 'Контакт']);
 ---
 
 <header class="bg-paper">
