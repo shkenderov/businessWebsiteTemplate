@@ -18,7 +18,7 @@ const { business } = client;
           <a href={telHref(business.phone)} class="btn-outline-dark">Или позвънете: {business.phoneDisplay}</a>
         </div>
         {b.embed && (
-          <div class="mt-8 overflow-hidden rounded-ui border border-slab-dark bg-white">
+          <div class="surface mt-8 overflow-hidden">
             <iframe src={b.url} title={b.title ?? 'Запазване на час'} class="block h-[640px] w-full" loading="lazy"></iframe>
           </div>
         )}

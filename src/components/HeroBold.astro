@@ -1,0 +1,85 @@
+---
+import type { Client } from '../lib/clients';
+import { imageUrl, imageSrcset, telHref, requestHref, requestLabel } from '../lib/clients';
+const { client } = Astro.props as { client: Client };
+const { hero, business } = client;
+const ratingText = business.rating?.toFixed(1).replace('.', ',');
+const showRating = Boolean(business.rating && business.reviewCount);
+const posDesktop = hero.imagePosition ?? '50% 50%';
+const posMobile = hero.imagePositionMobile ?? posDesktop;
+const reqHref = requestHref(client);
+const reqLabel = requestLabel(client);
+// the ticker repeats the services (or areas) so the strip never runs out
+const tickerItems = (client.services?.map((s) => s.title) ?? business.areas ?? []).filter(Boolean);
+---
+
+<section id="top" class="relative overflow-hidden text-white">
+  <div class="container-site grid items-center gap-10 pb-10 pt-10 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-14 lg:py-24">
+    <div>
+      <h1 class="max-w-[22ch] text-[2.1rem] font-bold leading-[1.08] !text-white sm:text-4xl lg:text-[3rem] lg:leading-[1.06]" data-reveal>
+        {hero.headline}
+      </h1>
+      <p class="mt-5 max-w-[52ch] text-base leading-relaxed text-white/80 sm:text-lg" data-reveal style="--reveal-delay:120ms">
+        {hero.subline}
+      </p>
+
+      <div class="mt-8 flex flex-col gap-3 sm:flex-row" data-reveal style="--reveal-delay:220ms">
+        <a href={telHref(business.phone)} class="btn-primary whitespace-nowrap">
+          {hero.ctaCall ?? 'Позвънете'}: {business.phoneDisplay}
+        </a>
+        <a href={reqHref} class="btn-outline-light hidden whitespace-nowrap sm:inline-flex">{reqLabel}</a>
+      </div>
+
+      {showRating && (
+        <p class="mt-8 flex items-center gap-2 text-sm text-white/80" data-reveal style="--reveal-delay:320ms">
+          <span class="flex text-amber" aria-hidden="true">
+            {Array.from({ length: 5 }).map(() => (
+              <svg class="size-4" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L10 14.9l-5.2 2.8 1-5.9L1.5 7.7l5.9-.8z"/></svg>
+            ))}
+          </span>
+          <span>
+            <strong class="font-semibold text-white" data-count={business.rating} data-decimals="1">{ratingText}</strong>{' от '}<strong class="font-semibold text-white" data-count={business.reviewCount}>{business.reviewCount}</strong>{' отзива в Google'}
+          </span>
+        </p>
+      )}
+    </div>
+
+    <!-- the photo, framed and floating; the accent glow behind it is the one "light source" on the page -->
+    <div class="relative" data-reveal style="--reveal-delay:160ms">
+      <div class="absolute -inset-6 -z-10 rounded-[2rem] opacity-70 blur-3xl" style="background: radial-gradient(closest-side, color-mix(in srgb, var(--color-hivis) 55%, transparent), transparent)" aria-hidden="true"></div>
+      <div class="float overflow-hidden rounded-2xl border border-white/15 shadow-2xl shadow-black/50">
+        <img
+          src={imageUrl(hero.image, 1200)}
+          srcset={imageSrcset(hero.image, [640, 1024, 1400])}
+          sizes="(min-width: 1024px) 40vw, 100vw"
+          alt={hero.imageAlt}
+          width="1200"
+          height="900"
+          fetchpriority="high"
+          decoding="async"
+          class="hero-photo aspect-[4/3] w-full object-cover"
+        />
+      </div>
+    </div>
+  </div>
+
+  {tickerItems.length > 0 && (
+    <div class="ticker border-y border-white/10 py-3 text-sm text-white/70" aria-hidden="true">
+      <div class="ticker-track flex w-max gap-8 whitespace-nowrap px-4">
+        {[...tickerItems, ...tickerItems].map((item) => (
+          <span class="flex items-center gap-8">
+            {item}
+            <span class="size-1.5 rounded-full bg-hivis"></span>
+          </span>
+        ))}
+      </div>
+    </div>
+  )}
+</section>
+
+<style define:vars={{ posDesktop, posMobile }}>
+  .hero-photo { object-position: var(--posMobile); }
+  @media (min-width: 64rem) {
+    .hero-photo { object-position: var(--posDesktop); }
+  }
+</style>

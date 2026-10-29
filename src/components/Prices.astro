@@ -28,7 +28,7 @@ const currency = calc?.currency ?? '€';
                     {it.duration && <span class="ml-2 text-sm text-ink-soft">{it.duration}</span>}
                     {it.note && <span class="block text-sm text-ink-soft">{it.note}</span>}
                   </div>
-                  <span class="shrink-0 font-display text-[15px] font-bold text-graphite">{it.price}</span>
+                  <span class="shrink-0 font-display text-[15px] font-bold text-heading">{it.price}</span>
                 </li>
               ))}
             </ul>
@@ -39,7 +39,7 @@ const currency = calc?.currency ?? '€';
 
     {/* ── lookup ───────────────────────────────────────────────────────── */}
     {p.mode === 'lookup' && p.lookup && (
-      <div class="mt-8 max-w-2xl rounded-ui bg-white p-5 sm:p-7" data-lookup>
+      <div class="surface mt-8 max-w-2xl p-5 sm:p-7" data-lookup>
         <div class="grid gap-4 sm:grid-cols-3">
           {p.lookup.labels.map((label, i) => (
             <div>
@@ -50,7 +50,7 @@ const currency = calc?.currency ?? '€';
             </div>
           ))}
         </div>
-        <p class="mt-6 min-h-[3.5rem] rounded-ui bg-slab px-4 py-3 text-[15px]" data-lookup-result>
+        <p class="mt-6 min-h-[3.5rem] rounded-ui border border-slab-dark bg-slab px-4 py-3 text-[15px]" data-lookup-result>
           {p.lookup.placeholder ?? 'Изберете, за да видите цената.'}
         </p>
         <script type="application/json" data-lookup-tree set:html={JSON.stringify(p.lookup.tree)} />
@@ -59,7 +59,7 @@ const currency = calc?.currency ?? '€';
 
     {/* ── calculator ───────────────────────────────────────────────────── */}
     {p.mode === 'calculator' && calc && (
-      <form class="mt-8 max-w-2xl rounded-ui bg-white p-5 sm:p-7" data-calculator novalidate>
+      <form class="surface mt-8 max-w-2xl p-5 sm:p-7" data-calculator novalidate>
         <div class="grid gap-5 sm:grid-cols-2">
           {calc.inputs.map((inp) => (
             <div class:list={[inp.type === 'checkbox' && 'sm:col-span-2']}>
@@ -89,7 +89,7 @@ const currency = calc?.currency ?? '€';
             </div>
           ))}
         </div>
-        <div class="mt-6 rounded-ui bg-graphite px-5 py-4 text-white">
+        <div class="mt-6 rounded-ui bg-panel px-5 py-4 text-white">
           <span class="block text-sm text-white/70">{calc.resultLabel ?? 'Ориентировъчна цена'}</span>
           <span class="block font-display text-2xl font-bold" data-calc-result aria-live="polite">—</span>
           {calc.resultHint && <span class="mt-1 block text-sm text-white/70">{calc.resultHint}</span>}

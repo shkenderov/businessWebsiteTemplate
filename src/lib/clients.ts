@@ -50,6 +50,9 @@ export interface Client {
   default?: boolean;
   /** Section order. Defaults to DEFAULT_SECTIONS. */
   sections?: SectionId[];
+  /** "calm" (default): paper and graphite, quiet motion.
+   *  "bold": dark, animated colour field, glass surfaces, glow. */
+  style?: 'calm' | 'bold';
   theme?: {
     /** Action colour (call / request buttons). Hex. */
     accent?: string;
@@ -213,9 +216,9 @@ export function loadClients(): Client[] {
     .filter((c) => !c.slug.startsWith('_'));
 }
 
-export function defaultClient(): Client {
+export function defaultClient(): Client | undefined {
   const all = loadClients();
-  return all.find((c) => c.default) ?? all[0];
+  return all.find((c) => c.default);
 }
 
 export function sectionsOf(client: Client): SectionId[] {

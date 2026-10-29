@@ -17,6 +17,7 @@ const reqLabel = requestLabel(client);
   element rather than background-attachment, because iOS ignores the latter.
 -->
 <section id="top" class="relative flex min-h-[82svh] flex-col justify-end text-white lg:min-h-[680px] lg:justify-center">
+  <!-- calm hero: the fixed photo behind; see HeroBold for the other look -->
   <div class="fixed inset-0 -z-10" aria-hidden="true">
     <img
       src={imageUrl(hero.image, 1920)}
@@ -59,7 +60,7 @@ const reqLabel = requestLabel(client);
               <svg class="size-4" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L10 14.9l-5.2 2.8 1-5.9L1.5 7.7l5.9-.8z"/></svg>
             ))}
           </span>
-          <span><strong class="font-semibold text-white">{ratingText}</strong> от {business.reviewCount} отзива в Google</span>
+          <span><strong class="font-semibold text-white" data-count={business.rating} data-decimals="1">{ratingText}</strong> от <strong class="font-semibold text-white" data-count={business.reviewCount}>{business.reviewCount}</strong> отзива в Google</span>
         </p>
       )}
     </div>

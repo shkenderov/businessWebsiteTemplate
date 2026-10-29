@@ -4,11 +4,20 @@ One landing-page template for local service businesses (roofers, HVAC, trades),
 in Bulgarian, mobile-first, built with Astro + Tailwind and deployed to GitHub Pages.
 Every client is a single JSON file; the page is generated from it.
 
-Live demo: https://shkenderov.github.io/businessWebsiteTemplate/ — a generic
-"Вашата фирма" page with placeholder identity, so it shows the structure without
-pretending to be anyone.
+Showcase: https://shkenderov.github.io/businessWebsiteTemplate/ — six kinds of
+business, each in two looks. The businesses are fictional and the pages are `noindex`.
 
-Starting packs in `src/clients/_examples/` (never deployed on their own):
+Two looks, set per client with `"style"`:
+
+- **`calm`** (default) — paper, zinc and graphite; the hero photo is a fixed layer
+  the page scrolls over; quiet reveal-on-scroll.
+- **`bold`** — near-black with a slow animated colour field behind everything
+  (canvas, ~30 fps, lighter on phones, paused when hidden, static under
+  reduced-motion), frosted-glass cards, glowing accent, floating hero photo,
+  a services ticker, counters that count up. Both looks derive from the same
+  two theme colours.
+
+Starting packs in `src/clients/_examples/`:
 
 | Pack | Sections | Prices module | Booking |
 | --- | --- | --- | --- |
@@ -100,12 +109,14 @@ Static site, no backend. Two modes, chosen by `form.endpoint`:
 ```
 src/clients/*.json        one file per client (slug = file name)
 src/clients/_examples/    roofer, hvac, barber, salon, phone-repair, auto — packs for new-client
-src/components/           Header, Hero, TrustStrip, Services, Prices, Process, Gallery,
-                          Team, Reviews, Booking, Contact, Footer, StickyCallBar, LandingPage
+src/components/           Header, Hero (calm), HeroBold, Ambient (bold background), TrustStrip,
+                          Services, Prices, Process, Gallery, Team, Reviews, Booking, Contact,
+                          Footer, StickyCallBar, LandingPage
 src/scripts/leadForm.ts   shared submit logic for every request/booking form
+src/scripts/motion.ts     reveal-on-scroll + counters (both looks)
+src/pages/index.astro     the showcase index
 src/layouts/Base.astro    <head>, SEO, LocalBusiness JSON-LD, per-client theme vars
 src/lib/clients.ts        config types + helpers (image URLs, tel/viber links)
-src/pages/index.astro     the client marked "default": true
 src/pages/[client].astro  /<slug>/ for every client
 src/styles/global.css     Tailwind v4 theme tokens, fonts (Unbounded + Golos Text)
 .github/workflows/        build + deploy to GitHub Pages on push to main

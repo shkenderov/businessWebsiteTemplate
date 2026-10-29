@@ -65,9 +65,9 @@ const mapSrc = business.mapQuery
           <div>
             <dt class="text-sm font-semibold text-ink-soft">Телефон</dt>
             <dd class="mt-1 flex flex-wrap items-center gap-3">
-              <a href={telHref(business.phone)} class="font-display text-xl font-bold text-graphite hover:text-hivis">{business.phoneDisplay}</a>
+              <a href={telHref(business.phone)} class="font-display text-xl font-bold text-heading hover:text-hivis">{business.phoneDisplay}</a>
               {business.viber && (
-                <a href={viberHref(business.phone)} class="inline-flex items-center gap-1.5 rounded-ui border border-slab-dark px-3 py-1.5 text-sm font-medium hover:border-graphite">
+                <a href={viberHref(business.phone)} class="inline-flex items-center gap-1.5 rounded-ui border border-slab-dark px-3 py-1.5 text-sm font-medium hover:border-heading">
                   <ViberIcon class="size-4 text-[#7360f2]" />
                   Пишете ни във Viber
                 </a>
@@ -105,7 +105,7 @@ const mapSrc = business.mapQuery
         </div>
 
         {mapSrc && (
-          <div class:list={['mt-6 overflow-hidden rounded-ui border border-slab-dark bg-slab', !showForm && 'lg:mt-0']}>
+          <div class:list={['map-frame mt-6 overflow-hidden rounded-ui border border-slab-dark bg-slab', !showForm && 'lg:mt-0']}>
             <iframe
               src={mapSrc}
               title={`${business.name} на картата`}

@@ -4,6 +4,7 @@ import { sectionsOf } from '../lib/clients';
 import Base from '../layouts/Base.astro';
 import Header from './Header.astro';
 import Hero from './Hero.astro';
+import HeroBold from './HeroBold.astro';
 import TrustStrip from './TrustStrip.astro';
 import Services from './Services.astro';
 import Prices from './Prices.astro';
@@ -32,6 +33,7 @@ const has: Record<SectionId, boolean> = {
   contact: true,
 };
 const sections = sectionsOf(client).filter((s) => has[s]);
+const bold = client.style === 'bold';
 ---
 
 <Base client={client}>
@@ -39,7 +41,7 @@ const sections = sectionsOf(client).filter((s) => has[s]);
   <main>
     {sections.map((s) => {
       switch (s) {
-        case 'hero': return <Hero client={client} />;
+        case 'hero': return bold ? <HeroBold client={client} /> : <Hero client={client} />;
         case 'trust': return <TrustStrip client={client} />;
         case 'services': return <Services client={client} />;
         case 'prices': return <Prices client={client} />;
@@ -55,3 +57,8 @@ const sections = sectionsOf(client).filter((s) => has[s]);
   <Footer client={client} />
   <StickyCallBar client={client} />
 </Base>
+
+<script>
+  import { initMotion } from '../scripts/motion';
+  initMotion();
+</script>

@@ -4,10 +4,14 @@
 
 /*
   Design tokens.
-  Colours are deliberately "materials": sheet-metal graphite, pale zinc,
-  warm paper, and hi-vis orange for the two actions that matter
-  (call, request a visit). A client config can override --color-hivis and
-  --color-graphite inline on <html> to re-brand without touching code.
+
+  Two looks share one component set, switched by <html data-style="calm|bold">:
+  - calm: paper, zinc and graphite; hi-vis accent only on the two actions.
+  - bold: near-black "void" with a slow animated colour field behind
+    everything, glass surfaces, glowing accent.
+
+  A client config overrides --color-hivis (accent) and --color-graphite
+  (dark panel) inline on <html>; every other colour derives from those two.
 */
 @theme {
   --font-display: "Unbounded Variable", "Arial Black", sans-serif;
@@ -19,6 +23,10 @@
   --color-slab: #e6e8eb;
   --color-slab-dark: #cfd3d8;
   --color-paper: #fafaf8;
+  --color-void: #fafaf8;          /* solid page background behind everything */
+  --color-heading: #1f2328;       /* heading + strong text */
+  --color-panel: #1f2328;         /* dark panels: reviews, footer, number badges */
+  --color-field: #ffffff;         /* inputs */
   --color-hivis: #f2690a;
   /* derived at runtime so a per-client accent override also restyles hover */
   --color-hivis-deep: color-mix(in srgb, var(--color-hivis) 82%, black);
@@ -27,10 +35,26 @@
   --radius-ui: 0.375rem;
 }
 
+/* ── bold: dark, translucent, glowing ─────────────────────────────── */
+html[data-style="bold"] {
+  color-scheme: dark;
+  --color-void: color-mix(in srgb, var(--color-graphite) 45%, #05070b);
+  --color-paper: transparent;                                   /* the colour field shows through */
+  --color-slab: color-mix(in srgb, white 4%, transparent);      /* alternating sections: a faint lift */
+  --color-slab-dark: color-mix(in srgb, white 12%, transparent);
+  --color-ink: #e7eaf0;
+  --color-ink-soft: #a3abb7;
+  --color-heading: #ffffff;
+  --color-panel: color-mix(in srgb, var(--color-graphite) 55%, transparent);
+  --color-field: color-mix(in srgb, white 6%, transparent);
+  --color-amber: #ffc83d;
+  --radius-ui: 0.75rem;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
-    background: var(--color-paper); /* overscroll colour; body itself is transparent */
+    background: var(--color-void);
   }
   @media (prefers-reduced-motion: reduce) {
     html {
@@ -42,7 +66,7 @@
     font-feature-settings: "kern", "liga";
   }
   h1, h2, h3 {
-    @apply font-display text-graphite;
+    @apply font-display text-heading;
     letter-spacing: -0.015em;
     text-wrap: balance;
   }
@@ -61,7 +85,7 @@
 }
 
 @utility btn {
-  @apply inline-flex items-center justify-center gap-2 rounded-ui px-5 py-3 text-base font-semibold leading-none transition-colors;
+  @apply inline-flex items-center justify-center gap-2 rounded-ui px-5 py-3 text-base font-semibold leading-none transition-[background-color,box-shadow,transform] duration-200;
   min-height: 3rem;
 }
 @utility btn-primary {
@@ -71,12 +95,118 @@
   @apply btn border-2 border-white/80 text-white hover:bg-white/10;
 }
 @utility btn-outline-dark {
-  @apply btn border-2 border-graphite text-graphite hover:bg-graphite hover:text-white;
+  @apply btn border-2 border-heading text-heading hover:bg-heading hover:text-void;
 }
 @utility field {
-  @apply w-full rounded-ui border border-slab-dark bg-white px-4 py-3 text-base text-ink placeholder:text-ink-soft/70;
+  @apply w-full rounded-ui border border-slab-dark bg-field px-4 py-3 text-base text-ink placeholder:text-ink-soft/70;
   &:focus {
-    @apply border-graphite outline-none;
+    @apply border-heading outline-none;
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-hivis) 35%, transparent);
+  }
+}
+/* a card surface: white on paper in calm, frosted glass in bold */
+@utility surface {
+  @apply rounded-ui border border-slab-dark bg-field;
+}
+
+/* ── bold-only treatments ─────────────────────────────────────────── */
+html[data-style="bold"] .surface {
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+html[data-style="bold"] .btn-primary {
+  box-shadow: 0 0 0 1px color-mix(in srgb, white 10%, transparent) inset,
+              0 8px 30px color-mix(in srgb, var(--color-hivis) 35%, transparent);
+}
+html[data-style="bold"] .btn-primary:hover {
+  box-shadow: 0 0 0 1px color-mix(in srgb, white 14%, transparent) inset,
+              0 10px 40px color-mix(in srgb, var(--color-hivis) 55%, transparent);
+  transform: translateY(-1px);
+}
+html[data-style="bold"] .map-frame iframe {
+  filter: invert(0.92) hue-rotate(180deg) grayscale(0.25) contrast(0.9);
+}
+html[data-style="bold"] .callbar {
+  background: color-mix(in srgb, var(--color-void) 82%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+/* the fixed colour field + a faint dot grid on top of it */
+.ambient {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  pointer-events: none;
+}
+.ambient canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.ambient::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(color-mix(in srgb, white 9%, transparent) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: linear-gradient(to bottom, black, transparent 70%);
+  -webkit-mask-image: linear-gradient(to bottom, black, transparent 70%);
+}
+
+/* ── motion ───────────────────────────────────────────────────────── */
+/* reveal on scroll: JS tags elements, so nothing is hidden without JS */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+[data-reveal].is-in {
+  opacity: 1;
+  transform: none;
+}
+/* section headings draw a short accent rule when they arrive */
+h2[data-reveal]::after {
+  content: "";
+  display: block;
+  height: 3px;
+  width: 0;
+  margin-top: 0.6rem;
+  background: var(--color-hivis);
+  border-radius: 2px;
+  transition: width 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) 0.25s;
+}
+h2[data-reveal].is-in::after {
+  width: 3rem;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.float {
+  animation: float 7s ease-in-out infinite;
+}
+.ticker-track {
+  animation: ticker 40s linear infinite;
+}
+.ticker:hover .ticker-track {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  h2[data-reveal]::after {
+    width: 3rem;
+    transition: none;
+  }
+  .float, .ticker-track {
+    animation: none;
   }
 }

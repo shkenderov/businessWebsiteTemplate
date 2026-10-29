@@ -3,6 +3,7 @@ import type { Client, SectionId } from '../lib/clients';
 import { telHref } from '../lib/clients';
 const { client, sections } = Astro.props as { client: Client; sections: SectionId[] };
 const { business } = client;
+const bold = client.style === 'bold';
 
 // Navigation follows the sections that exist; contact is always last.
 const labels: Partial<Record<SectionId, [string, string]>> = {
@@ -21,16 +22,16 @@ const nav = sections
 nav.push(['#kontakt', 'Контакт']);
 ---
 
-<header class="bg-paper">
+<header class:list={['bg-paper', bold && 'sticky top-0 z-30 border-b border-slab-dark backdrop-blur-md']} style={bold ? 'background: color-mix(in srgb, var(--color-void) 70%, transparent)' : undefined}>
   <div class="container-site flex items-center justify-between gap-4 py-4">
     <a href="#top" class="min-w-0">
-      <span class="block truncate font-display text-lg font-bold leading-tight text-graphite sm:text-xl">{business.name}</span>
+      <span class="block truncate font-display text-lg font-bold leading-tight text-heading sm:text-xl">{business.name}</span>
       <span class="block truncate text-sm text-ink-soft">{business.trade}</span>
     </a>
 
     <nav class="hidden items-center gap-7 md:flex" aria-label="Основна навигация">
       {nav.map(([href, label]) => (
-        <a href={href} class="text-[15px] font-medium text-ink hover:text-graphite">{label}</a>
+        <a href={href} class="text-[15px] font-medium text-ink hover:text-heading">{label}</a>
       ))}
     </nav>
 
