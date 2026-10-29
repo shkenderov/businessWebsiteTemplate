@@ -4,18 +4,16 @@ One landing-page template for local service businesses (roofers, HVAC, trades),
 in Bulgarian, mobile-first, built with Astro + Tailwind and deployed to GitHub Pages.
 Every client is a single JSON file; the page is generated from it.
 
-Live demos:
-
-- Roofer: https://shkenderov.github.io/businessWebsiteTemplate/ (also at `/demo-roofer/`)
-- HVAC: https://shkenderov.github.io/businessWebsiteTemplate/demo-hvac/
-
-The demo businesses are fictional. Real client data goes in its own file (below).
+Live demo: https://shkenderov.github.io/businessWebsiteTemplate/ — a generic
+"Вашата фирма" page with placeholder identity, so it shows the structure without
+pretending to be anyone. Trade-specific copy packs (roofer, HVAC) live in
+`src/clients/_examples/`; they are starting points, not deployed pages.
 
 ## Add a client in 10 minutes
 
 ```bash
 npm install
-npm run new-client -- yordan-pokrivi --from demo-roofer   # or --from demo-hvac
+npm run new-client -- yordan-pokrivi --from roofer   # or --from hvac
 ```
 
 Edit `src/clients/yordan-pokrivi.json`:
@@ -43,7 +41,7 @@ Push to `main` and the site rebuilds. The client's page is at `/<slug>/`.
 For a paying client, swap the stock photos for their own job photos; it converts far
 better and removes the dependency on Unsplash.
 
-Stock photos used by the demos (Unsplash licence, free for commercial use):
+Stock photos used by the demo and examples (Unsplash licence, free for commercial use):
 Sergej (roof tiles), Zohair Mirza (roof repair), Sergio Martins (metal roofing),
 Michael Jasmund (tile pattern), alpha innotec (heat pumps and AC units),
 Everett Pachmann, Illia Horokhovsky (AC units).
@@ -62,6 +60,7 @@ Static site, no backend. Two modes, chosen by `form.endpoint`:
 
 ```
 src/clients/*.json        one file per client (slug = file name)
+src/clients/_examples/    roofer.json, hvac.json — copy packs for new-client (not deployed)
 src/components/           Header, Hero, TrustStrip, Services, Process, Reviews,
                           RequestForm, Footer, StickyCallBar, LandingPage
 src/layouts/Base.astro    <head>, SEO, LocalBusiness JSON-LD, per-client theme vars

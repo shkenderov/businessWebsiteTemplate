@@ -4,6 +4,7 @@ import { imageUrl, imageSrcset, telHref } from '../lib/clients';
 const { client } = Astro.props as { client: Client };
 const { hero, business } = client;
 const ratingText = business.rating?.toFixed(1).replace('.', ',');
+const showRating = Boolean(business.rating && business.reviewCount);
 ---
 
 <section id="top" class="relative bg-graphite text-white">
@@ -47,7 +48,7 @@ const ratingText = business.rating?.toFixed(1).replace('.', ',');
           <a href="#zayavka" class="btn-outline-light hidden whitespace-nowrap sm:inline-flex">{hero.ctaRequest ?? 'Заявете оглед'}</a>
         </div>
 
-        {business.rating && business.reviewCount && (
+        {showRating && (
           <p class="mt-8 flex items-center gap-2 text-sm text-white/80">
             <span class="flex text-amber" aria-hidden="true">
               {Array.from({ length: 5 }).map(() => (

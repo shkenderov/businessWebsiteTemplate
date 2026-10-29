@@ -5,13 +5,14 @@ const { client } = Astro.props as { client: Client };
 const { reviews, business } = client;
 const ratingText = business.rating?.toFixed(1).replace('.', ',');
 const placeId = business.googlePlaceId;
+const showRating = Boolean(business.rating && business.reviewCount);
 ---
 
 <section id="otzivi" class="scroll-mt-20 bg-graphite text-white">
   <div class="container-site py-14 lg:py-20">
     <div class="flex flex-wrap items-end justify-between gap-4">
       <h2 class="text-2xl font-bold !text-white sm:text-3xl">Какво казват клиентите</h2>
-      {business.rating && business.reviewCount && (
+      {showRating && (
         <p class="text-sm text-white/75">
           <span class="text-amber" aria-hidden="true">★★★★★</span>
           <strong class="ml-1 font-semibold text-white">{ratingText}</strong> · {business.reviewCount} отзива в Google
