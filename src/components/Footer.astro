@@ -1,0 +1,26 @@
+---
+import type { Client } from '../lib/clients';
+import { telHref } from '../lib/clients';
+const { client } = Astro.props as { client: Client };
+const { business, footer } = client;
+const year = new Date().getFullYear();
+---
+
+<footer class="bg-graphite text-white/70">
+  <div class="container-site flex flex-col gap-3 py-8 text-sm sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <span class="font-display font-bold text-white">{business.name}</span>
+      {business.eik && <span class="ml-2">{business.eik}</span>}
+      <span class="ml-2">© {year}</span>
+    </div>
+    <div class="flex flex-wrap gap-x-5 gap-y-1">
+      <a href={telHref(business.phone)} class="hover:text-white">{business.phoneDisplay}</a>
+      {business.email && <a href={`mailto:${business.email}`} class="hover:text-white">{business.email}</a>}
+      {footer?.credit && (
+        footer.creditUrl
+          ? <a href={footer.creditUrl} class="hover:text-white">{footer.credit}</a>
+          : <span>{footer.credit}</span>
+      )}
+    </div>
+  </div>
+</footer>

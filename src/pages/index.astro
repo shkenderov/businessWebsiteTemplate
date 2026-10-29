@@ -1,0 +1,7 @@
+---
+import LandingPage from '../components/LandingPage.astro';
+import { defaultClient } from '../lib/clients';
+const client = defaultClient();
+---
+
+<LandingPage client={client} />

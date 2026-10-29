@@ -1,0 +1,15 @@
+---
+import LandingPage from '../components/LandingPage.astro';
+import { loadClients } from '../lib/clients';
+
+export function getStaticPaths() {
+  return loadClients().map((client) => ({
+    params: { client: client.slug },
+    props: { client },
+  }));
+}
+
+const { client } = Astro.props;
+---
+
+<LandingPage client={client} />

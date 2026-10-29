@@ -1,0 +1,17 @@
+---
+import type { Client } from '../lib/clients';
+const { client } = Astro.props as { client: Client };
+---
+
+<section class="bg-paper" aria-label="Защо да изберете нас">
+  <div class="container-site py-10 lg:py-14">
+    <ul class="grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
+      {client.trust.map((t) => (
+        <li class="border-l-4 border-hivis pl-4">
+          <h3 class="text-base font-bold leading-snug">{t.title}</h3>
+          <p class="mt-1.5 text-[15px] leading-relaxed text-ink-soft">{t.text}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>

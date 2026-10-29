@@ -1,0 +1,63 @@
+---
+import '../styles/global.css';
+import type { Client } from '../lib/clients';
+import { withBase, imageUrl } from '../lib/clients';
+
+interface Props {
+  client: Client;
+}
+const { client } = Astro.props;
+const { seo, theme, business, hero } = client;
+
+const themeStyle = [
+  theme?.accent ? `--color-hivis:${theme.accent}` : '',
+  theme?.dark ? `--color-graphite:${theme.dark}` : '',
+]
+  .filter(Boolean)
+  .join(';');
+
+const canonical = new URL(Astro.url.pathname, Astro.site).toString();
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'LocalBusiness',
+  name: business.name,
+  telephone: business.phone,
+  address: business.address,
+  areaServed: business.areas,
+  url: canonical,
+  image: imageUrl(hero.image, 1200),
+  ...(business.rating && business.reviewCount
+    ? {
+        aggregateRating: {
+          '@type': 'AggregateRating',
+          ratingValue: business.rating,
+          reviewCount: business.reviewCount,
+        },
+      }
+    : {}),
+};
+---
+
+<!doctype html>
+<html lang="bg" style={themeStyle}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{seo.title}</title>
+    <meta name="description" content={seo.description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
+    <meta name="theme-color" content={theme?.dark ?? '#1f2328'} />
+    <meta property="og:title" content={seo.title} />
+    <meta property="og:description" content={seo.description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content={imageUrl(hero.image, 1200)} />
+    <meta property="og:locale" content="bg_BG" />
+    <link rel="preconnect" href="https://images.unsplash.com" crossorigin />
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  </head>
+  <body class="min-h-dvh pb-20 md:pb-0">
+    <slot />
+  </body>
+</html>

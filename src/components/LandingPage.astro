@@ -1,0 +1,29 @@
+---
+import type { Client } from '../lib/clients';
+import Base from '../layouts/Base.astro';
+import Header from './Header.astro';
+import Hero from './Hero.astro';
+import TrustStrip from './TrustStrip.astro';
+import Services from './Services.astro';
+import Process from './Process.astro';
+import Reviews from './Reviews.astro';
+import RequestForm from './RequestForm.astro';
+import Footer from './Footer.astro';
+import StickyCallBar from './StickyCallBar.astro';
+
+const { client } = Astro.props as { client: Client };
+---
+
+<Base client={client}>
+  <Header client={client} />
+  <main>
+    <Hero client={client} />
+    <TrustStrip client={client} />
+    <Services client={client} />
+    <Process client={client} />
+    <Reviews client={client} />
+    <RequestForm client={client} />
+  </main>
+  <Footer client={client} />
+  <StickyCallBar client={client} />
+</Base>

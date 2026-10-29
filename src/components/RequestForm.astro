@@ -1,0 +1,172 @@
+---
+import type { Client } from '../lib/clients';
+import { telHref, viberHref } from '../lib/clients';
+const { client } = Astro.props as { client: Client };
+const { form, business } = client;
+const mapSrc = business.mapQuery
+  ? `https://www.google.com/maps?q=${encodeURIComponent(business.mapQuery)}&output=embed&hl=bg`
+  : null;
+---
+
+<section id="zayavka" class="scroll-mt-20 bg-paper">
+  <div class="container-site py-14 lg:py-20">
+    <div class="grid gap-12 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-16">
+      <!-- Form -->
+      <div>
+        <h2 class="text-2xl font-bold sm:text-3xl">{form.title ?? 'Заявете оглед'}</h2>
+        {form.intro && <p class="mt-3 max-w-[52ch] text-[15px] leading-relaxed text-ink-soft">{form.intro}</p>}
+
+        <form
+          id="request-form"
+          class="mt-8 grid gap-5 sm:grid-cols-2"
+          method="post"
+          action={form.endpoint || undefined}
+          data-endpoint={form.endpoint || ''}
+          data-phone={business.phone}
+          data-business={business.name}
+          novalidate
+        >
+          <div class="sm:col-span-1">
+            <label for="f-name" class="mb-1.5 block text-sm font-semibold">Име</label>
+            <input id="f-name" name="name" type="text" autocomplete="name" required class="field" />
+          </div>
+          <div class="sm:col-span-1">
+            <label for="f-phone" class="mb-1.5 block text-sm font-semibold">Телефон</label>
+            <input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" required class="field" placeholder="08…" />
+          </div>
+          <div class="sm:col-span-2">
+            <label for="f-area" class="mb-1.5 block text-sm font-semibold">{form.areaLabel ?? 'Квартал'}</label>
+            <input id="f-area" name="area" type="text" class="field" list="areas" />
+            {business.areas && (
+              <datalist id="areas">{business.areas.map((a) => <option value={a} />)}</datalist>
+            )}
+          </div>
+          <div class="sm:col-span-2">
+            <label for="f-problem" class="mb-1.5 block text-sm font-semibold">{form.problemLabel ?? 'Какъв е проблемът?'}</label>
+            <textarea id="f-problem" name="problem" rows="4" class="field" placeholder={form.problemHint ?? ''}></textarea>
+          </div>
+          <!-- honeypot for bots -->
+          <input type="text" name="website" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true" />
+
+          <div class="sm:col-span-2 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <button type="submit" class="btn-primary shrink-0 whitespace-nowrap">Изпратете заявката</button>
+            <p class="text-sm text-ink-soft">
+              Снимка на проблема може да пратите по Viber на {business.phoneDisplay}.
+            </p>
+          </div>
+
+          <p id="form-status" class="sm:col-span-2 hidden rounded-ui bg-slab px-4 py-3 text-[15px]" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+
+      <!-- Contact -->
+      <aside id="kontakt" class="scroll-mt-20">
+        <h2 class="text-2xl font-bold sm:text-3xl">Контакт</h2>
+        <dl class="mt-6 space-y-5 text-[15px]">
+          <div>
+            <dt class="text-sm font-semibold text-ink-soft">Телефон</dt>
+            <dd class="mt-1">
+              <a href={telHref(business.phone)} class="font-display text-xl font-bold text-graphite hover:text-hivis">{business.phoneDisplay}</a>
+              {business.viber && (
+                <a href={viberHref(business.phone)} class="ml-3 inline-flex items-center gap-1.5 rounded-ui border border-slab-dark px-3 py-1.5 text-sm font-medium hover:border-graphite">
+                  <svg class="size-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.5 2 2 5.9 2 11.2c0 2.7 1.2 5.1 3.2 6.8V22l3.6-2c1 .3 2.1.4 3.2.4 5.5 0 10-3.9 10-9.2S17.5 2 12 2zm0 16.5c-1 0-2-.1-2.9-.4l-.4-.1-2 1.1v-2.4l-.4-.3c-1.7-1.3-2.7-3.2-2.7-5.2C3.6 7 7.4 3.8 12 3.8s8.4 3.2 8.4 7.4-3.8 7.3-8.4 7.3z"/><path d="M14.7 13.3c-.3-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.2-.6.8-.8.9-.1.2-.3.2-.5.1-.3-.1-1.1-.4-2.1-1.3-.8-.7-1.3-1.5-1.5-1.8-.1-.3 0-.4.1-.5l.4-.5.3-.4c.1-.2 0-.3 0-.5l-.8-1.8c-.2-.4-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.3s1 2.7 1.1 2.9c.1.2 2 3.1 4.9 4.3 2.4 1 2.4.6 2.8.6.4 0 1.4-.6 1.6-1.1.2-.5.2-1 .1-1.1-.1-.2-.3-.2-.5-.3z"/></svg>
+                  Viber
+                </a>
+              )}
+            </dd>
+          </div>
+          {business.hours && (
+            <div>
+              <dt class="text-sm font-semibold text-ink-soft">Работно време</dt>
+              <dd class="mt-1">{business.hours}</dd>
+            </div>
+          )}
+          {business.address && (
+            <div>
+              <dt class="text-sm font-semibold text-ink-soft">Адрес</dt>
+              <dd class="mt-1">{business.address}</dd>
+            </div>
+          )}
+          {business.areas && (
+            <div>
+              <dt class="text-sm font-semibold text-ink-soft">Работим в</dt>
+              <dd class="mt-1 leading-relaxed">{business.areas.join(', ')} и цяла София.</dd>
+            </div>
+          )}
+        </dl>
+
+        {mapSrc && (
+          <div class="mt-6 overflow-hidden rounded-ui border border-slab-dark bg-slab">
+            <iframe
+              src={mapSrc}
+              title={`${business.name} на картата`}
+              width="100%"
+              height="240"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              class="block w-full"
+            ></iframe>
+          </div>
+        )}
+      </aside>
+    </div>
+  </div>
+</section>
+
+<script>
+  const form = document.getElementById('request-form') as HTMLFormElement | null;
+  const status = document.getElementById('form-status') as HTMLParagraphElement | null;
+
+  function say(msg: string, ok = true) {
+    if (!status) return;
+    status.textContent = msg;
+    status.classList.remove('hidden');
+    status.classList.toggle('text-ink', ok);
+    status.classList.toggle('text-red-700', !ok);
+  }
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!form.reportValidity()) return;
+    const data = new FormData(form);
+    if ((data.get('website') as string)?.length) return; // bot
+
+    const name = String(data.get('name') ?? '').trim();
+    const phone = String(data.get('phone') ?? '').trim();
+    const area = String(data.get('area') ?? '').trim();
+    const problem = String(data.get('problem') ?? '').trim();
+    const endpoint = form.dataset.endpoint;
+
+    if (endpoint) {
+      const btn = form.querySelector('button[type=submit]') as HTMLButtonElement;
+      btn.disabled = true;
+      try {
+        const res = await fetch(endpoint, { method: 'POST', body: data, headers: { Accept: 'application/json' } });
+        if (!res.ok) throw new Error(String(res.status));
+        say('Получихме заявката. Ще ви се обадим до един работен ден.');
+        form.reset();
+      } catch {
+        say(`Заявката не се изпрати. Обадете се на ${form.dataset.phone} или опитайте пак.`, false);
+      } finally {
+        btn.disabled = false;
+      }
+      return;
+    }
+
+    // No endpoint: hand the message to the phone's SMS app, pre-filled.
+    const text = [
+      `Здравейте, казвам се ${name}.`,
+      area && `Квартал: ${area}.`,
+      problem && `Проблем: ${problem}`,
+      `Телефон: ${phone}`,
+    ].filter(Boolean).join(' ');
+    const isTouch = matchMedia('(pointer: coarse)').matches;
+    if (isTouch) {
+      window.location.href = `sms:${form.dataset.phone}?&body=${encodeURIComponent(text)}`;
+      say('Отваряме съобщение с попълнена заявка. Натиснете „Изпрати“.');
+    } else {
+      try { await navigator.clipboard.writeText(text); } catch {}
+      say(`Копирахме заявката. Изпратете я по Viber или SMS на ${form.dataset.phone}, или се обадете.`);
+    }
+  });
+</script>

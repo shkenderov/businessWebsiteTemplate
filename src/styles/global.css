@@ -1,0 +1,81 @@
+@import "tailwindcss";
+@import "@fontsource-variable/unbounded";
+@import "@fontsource-variable/golos-text";
+
+/*
+  Design tokens.
+  Colours are deliberately "materials": sheet-metal graphite, pale zinc,
+  warm paper, and hi-vis orange for the two actions that matter
+  (call, request a visit). A client config can override --color-hivis and
+  --color-graphite inline on <html> to re-brand without touching code.
+*/
+@theme {
+  --font-display: "Unbounded Variable", "Arial Black", sans-serif;
+  --font-body: "Golos Text Variable", "Segoe UI", Roboto, sans-serif;
+
+  --color-graphite: #1f2328;
+  --color-ink: #2b2f33;
+  --color-ink-soft: #5b6168;
+  --color-slab: #e6e8eb;
+  --color-slab-dark: #cfd3d8;
+  --color-paper: #fafaf8;
+  --color-hivis: #f2690a;
+  /* derived at runtime so a per-client accent override also restyles hover */
+  --color-hivis-deep: color-mix(in srgb, var(--color-hivis) 82%, black);
+  --color-amber: #f5b301;
+
+  --radius-ui: 0.375rem;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+  body {
+    @apply bg-paper text-ink font-body antialiased;
+    font-feature-settings: "kern", "liga";
+  }
+  h1, h2, h3 {
+    @apply font-display text-graphite;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-hivis);
+    outline-offset: 3px;
+  }
+  ::selection {
+    background: var(--color-hivis);
+    color: white;
+  }
+}
+
+@utility container-site {
+  @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
+}
+
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-ui px-5 py-3 text-base font-semibold leading-none transition-colors;
+  min-height: 3rem;
+}
+@utility btn-primary {
+  @apply btn bg-hivis text-white hover:bg-hivis-deep;
+}
+@utility btn-outline-light {
+  @apply btn border-2 border-white/80 text-white hover:bg-white/10;
+}
+@utility btn-outline-dark {
+  @apply btn border-2 border-graphite text-graphite hover:bg-graphite hover:text-white;
+}
+@utility field {
+  @apply w-full rounded-ui border border-slab-dark bg-white px-4 py-3 text-base text-ink placeholder:text-ink-soft/70;
+  &:focus {
+    @apply border-graphite outline-none;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-hivis) 35%, transparent);
+  }
+}
