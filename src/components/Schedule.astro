@@ -78,7 +78,7 @@ const hours = sch.demoHours ?? { open: '10:00', close: '19:00', closedDays: [0, 
   </div>
 
   <p class="mt-5 text-sm text-ink-soft">
-    Получавате потвърждение и напомняне преди часа. Промяна или отказ — от линка в потвърждението.
+    Потвърждението идва по имейл заедно със събитие за календара на телефона ви, а ден преди часа — напомняне. Промяна или отказ — от линка в потвърждението.
     Предпочитате по телефона? <a href={telHref(business.phone)} class="font-medium text-heading underline-offset-4 hover:underline">{business.phoneDisplay}</a>
   </p>
 </div>
@@ -185,7 +185,7 @@ const hours = sch.demoHours ?? { open: '10:00', close: '19:00', closedDays: [0, 
           b.setAttribute('aria-pressed', 'true');
           if (summary) {
             const d = selectedDay!;
-            summary.innerHTML = `<strong>${serviceName}</strong>${staffName ? ` при ${staffName}` : ''} — ${DAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}, ${b.textContent}. В истинския сайт тук потвърждавате с име и телефон и получавате SMS.`;
+            summary.innerHTML = `<strong>${serviceName}</strong>${staffName ? ` при ${staffName}` : ''} — ${DAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}, ${b.textContent}. В истинския сайт тук потвърждавате с име и телефон и получавате имейл със събитие за календара.`;
             summary.classList.remove('hidden');
           }
         });

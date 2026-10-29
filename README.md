@@ -98,8 +98,10 @@ your own: each barber/stylist gets a free Cal.com account; the page embeds it.
    must match across staff.
 5. **Booking questions:** keep name + phone; phone is what a barber actually uses.
    Turn on "Requires confirmation" only if they want to approve each booking by hand.
-6. **Reminders:** Cal.com emails the customer; SMS reminders need a paid plan on Cal.com,
-   so most shops rely on the email plus the calendar invite.
+6. **Confirmations and reminders:** Cal.com emails the customer a confirmation with a
+   calendar invite (so the appointment pops up on their phone by itself) and a reminder
+   the day before — all free. SMS is a paid Cal.com feature; do not promise it unless
+   the owner pays for it. The owner gets the booking in their own calendar within seconds.
 7. **Put it in the client JSON:**
 
 ```json
