@@ -1,99 +1,22 @@
 ---
 /**
- * The bold style's living background: a few large, soft colour fields in the
- * client's accent and two companions, drifting slowly. Rendered at low
- * resolution on a canvas and upscaled by the browser, so it is cheap; ~30 fps,
- * fewer fields on phones, paused when the tab is hidden, and a single static
- * frame when the OS asks for reduced motion.
+ * The bold look's living background. Two fixed canvases behind the page:
+ * a soft colour field, and a scene chosen per business (see scripts/ambient.ts).
  */
+import type { SceneName } from '../scripts/ambient';
+const { scene = 'aurora' } = Astro.props as { scene?: SceneName };
 ---
 
-<div class="ambient" aria-hidden="true">
-  <canvas id="ambient-canvas"></canvas>
+<div class="ambient" aria-hidden="true" data-scene={scene}>
+  <canvas id="ambient-field"></canvas>
+  {scene !== 'aurora' && <canvas id="ambient-scene"></canvas>}
 </div>
 
 <script>
-  const canvas = document.getElementById('ambient-canvas') as HTMLCanvasElement | null;
-  if (canvas) {
-    const ctx = canvas.getContext('2d')!;
-    const css = getComputedStyle(document.documentElement);
-    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const mobile = matchMedia('(max-width: 767px)').matches;
-
-    // --- colours: accent + two companions derived from its hue -----------
-    function hexToHsl(hex: string): [number, number, number] {
-      const m = hex.replace('#', '');
-      const n = m.length === 3 ? m.split('').map((c) => c + c).join('') : m;
-      const r = parseInt(n.slice(0, 2), 16) / 255, g = parseInt(n.slice(2, 4), 16) / 255, b = parseInt(n.slice(4, 6), 16) / 255;
-      const max = Math.max(r, g, b), min = Math.min(r, g, b);
-      let h = 0, s = 0; const l = (max + min) / 2;
-      if (max !== min) {
-        const d = max - min;
-        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-        h = max === r ? (g - b) / d + (g < b ? 6 : 0) : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
-        h *= 60;
-      }
-      return [h, s * 100, l * 100];
-    }
-    const accent = css.getPropertyValue('--color-hivis').trim() || '#f2690a';
-    const [h, s] = hexToHsl(accent.startsWith('#') ? accent : '#f2690a');
-    const hsla = (hh: number, ss: number, ll: number, a: number) => `hsla(${(hh + 360) % 360}, ${ss}%, ${ll}%, ${a})`;
-
-    type Blob = { hue: number; sat: number; lum: number; alpha: number; r: number; sx: number; sy: number; px: number; py: number; ox: number; oy: number };
-    const blobs: Blob[] = [
-      { hue: h,        sat: s,            lum: 52, alpha: 0.55, r: 0.55, sx: 0.00011, sy: 0.00009, px: 0.0, py: 1.2, ox: 0.25, oy: 0.30 },
-      { hue: h - 150,  sat: Math.min(s, 70), lum: 45, alpha: 0.42, r: 0.60, sx: 0.00008, sy: 0.00012, px: 2.1, py: 0.4, ox: 0.75, oy: 0.65 },
-      { hue: h + 40,   sat: s,            lum: 55, alpha: 0.30, r: 0.45, sx: 0.00013, sy: 0.00007, px: 4.0, py: 2.6, ox: 0.60, oy: 0.15 },
-      { hue: h - 190,  sat: 60,           lum: 40, alpha: 0.28, r: 0.50, sx: 0.00007, sy: 0.00010, px: 1.0, py: 3.3, ox: 0.20, oy: 0.85 },
-    ].slice(0, mobile ? 3 : 4);
-
-    let w = 0, hgt = 0;
-    function resize() {
-      // low internal resolution: soft gradients do not need pixels
-      const scale = mobile ? 0.12 : 0.18;
-      w = Math.max(64, Math.floor(innerWidth * scale));
-      hgt = Math.max(64, Math.floor(innerHeight * scale));
-      canvas!.width = w; canvas!.height = hgt;
-    }
-    resize();
-    addEventListener('resize', resize, { passive: true });
-
-    const voidColor = css.getPropertyValue('--color-void').trim() || '#07090d';
-
-    function frame(t: number) {
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.fillStyle = voidColor;
-      ctx.fillRect(0, 0, w, hgt);
-      ctx.globalCompositeOperation = 'lighter';
-      const base = Math.min(w, hgt);
-      for (const b of blobs) {
-        const x = w * (b.ox + 0.22 * Math.sin(t * b.sx + b.px));
-        const y = hgt * (b.oy + 0.22 * Math.cos(t * b.sy + b.py));
-        const r = base * b.r * (1 + 0.08 * Math.sin(t * 0.0002 + b.px));
-        const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-        g.addColorStop(0, hsla(b.hue, b.sat, b.lum, b.alpha));
-        g.addColorStop(0.55, hsla(b.hue, b.sat, b.lum, b.alpha * 0.35));
-        g.addColorStop(1, hsla(b.hue, b.sat, b.lum, 0));
-        ctx.fillStyle = g;
-        ctx.fillRect(0, 0, w, hgt);
-      }
-    }
-
-    if (reduced) {
-      frame(1200);
-    } else {
-      let last = 0, running = true;
-      const fps = mobile ? 24 : 30;
-      const step = (t: number) => {
-        if (!running) return;
-        if (t - last >= 1000 / fps) { last = t; frame(t); }
-        requestAnimationFrame(step);
-      };
-      requestAnimationFrame(step);
-      document.addEventListener('visibilitychange', () => {
-        running = !document.hidden;
-        if (running) requestAnimationFrame(step);
-      });
-    }
-  }
+  import { startAmbient } from '../scripts/ambient';
+  import type { SceneName } from '../scripts/ambient';
+  const root = document.querySelector<HTMLElement>('.ambient');
+  const field = document.getElementById('ambient-field') as HTMLCanvasElement | null;
+  const scene = document.getElementById('ambient-scene') as HTMLCanvasElement | null;
+  if (root && field) startAmbient(field, scene, (root.dataset.scene as SceneName) || 'aurora');
 </script>

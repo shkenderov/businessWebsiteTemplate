@@ -8,6 +8,7 @@
     "booking",
     "contact"
   ],
+  "ambient": "stripes",
   "theme": {
     "accent": "#e0533a",
     "dark": "#15110f"

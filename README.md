@@ -11,11 +11,16 @@ Two looks, set per client with `"style"`:
 
 - **`calm`** (default) — paper, zinc and graphite; the hero photo is a fixed layer
   the page scrolls over; quiet reveal-on-scroll.
-- **`bold`** — near-black with a slow animated colour field behind everything
-  (canvas, ~30 fps, lighter on phones, paused when hidden, static under
-  reduced-motion), frosted-glass cards, glowing accent, floating hero photo,
-  a services ticker, counters that count up. Both looks derive from the same
-  two theme colours.
+- **`bold`** — near-black with a slow animated colour field behind everything,
+  plus a scene chosen per business with `"ambient"`: `trails` (night-road
+  light trails — garages, tyres), `stripes` (a barber pole, slowed down),
+  `waves` (flowing strands — salons), `circuit` (traces with signal pulses —
+  phone and computer repair), `rain` (roofers, with the odd flash), `airflow`
+  (cool and warm currents — HVAC), or `aurora` (colour field only). All are
+  small canvas scenes: ~30 fps, fewer elements on phones, paused when the tab
+  is hidden, a single static frame under reduced-motion. Frosted-glass cards,
+  glowing accent, floating hero photo, services ticker, counters that count up.
+  Both looks derive from the same two theme colours.
 
 Starting packs in `src/clients/_examples/`:
 
@@ -114,6 +119,7 @@ src/components/           Header, Hero (calm), HeroBold, Ambient (bold backgroun
                           Footer, StickyCallBar, LandingPage
 src/scripts/leadForm.ts   shared submit logic for every request/booking form
 src/scripts/motion.ts     reveal-on-scroll + counters (both looks)
+src/scripts/ambient.ts    the bold background: colour field + per-business scenes
 src/pages/index.astro     the showcase index
 src/layouts/Base.astro    <head>, SEO, LocalBusiness JSON-LD, per-client theme vars
 src/lib/clients.ts        config types + helpers (image URLs, tel/viber links)

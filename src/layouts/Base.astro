@@ -93,7 +93,7 @@ const jsonLd = {
   </head>
   <!-- body stays transparent so the hero's fixed photo shows through; every section paints its own background -->
   <body class="min-h-dvh !bg-transparent pb-20 md:pb-0">
-    {style === 'bold' && <Ambient />}
+    {style === 'bold' && <Ambient scene={client.ambient ?? 'aurora'} />}
     <slot />
   </body>
 </html>

@@ -8,6 +8,7 @@
     "reviews",
     "contact"
   ],
+  "ambient": "trails",
   "theme": {
     "accent": "#ff7a1a",
     "dark": "#101418"

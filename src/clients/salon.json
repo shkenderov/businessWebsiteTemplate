@@ -8,6 +8,7 @@
     "booking",
     "contact"
   ],
+  "ambient": "waves",
   "theme": {
     "accent": "#ff4f8b",
     "dark": "#1a1020"

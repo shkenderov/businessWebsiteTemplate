@@ -53,6 +53,10 @@ export interface Client {
   /** "calm" (default): paper and graphite, quiet motion.
    *  "bold": dark, animated colour field, glass surfaces, glow. */
   style?: 'calm' | 'bold';
+  /** bold only: the animated scene behind the page. Default "aurora" (colour field only).
+   *  trails (night road), stripes (barber pole), waves (strands), circuit (traces & pulses),
+   *  rain, airflow (warm/cool currents). */
+  ambient?: 'aurora' | 'trails' | 'stripes' | 'waves' | 'circuit' | 'rain' | 'airflow';
   theme?: {
     /** Action colour (call / request buttons). Hex. */
     accent?: string;
