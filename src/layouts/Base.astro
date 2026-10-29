@@ -20,13 +20,41 @@ const canonical = new URL(Astro.url.pathname, Astro.site).toString();
 
 const jsonLd = {
   '@context': 'https://schema.org',
-  '@type': 'LocalBusiness',
+  '@type': seo.schemaType ?? 'LocalBusiness',
   name: business.name,
+  description: seo.description,
   telephone: business.phone,
-  address: business.address,
-  areaServed: business.areas,
   url: canonical,
   image: imageUrl(hero.image, 1200),
+  ...(business.address
+    ? {
+        address: {
+          '@type': 'PostalAddress',
+          streetAddress: business.address,
+          addressLocality: 'София',
+          addressCountry: 'BG',
+        },
+      }
+    : {}),
+  ...(seo.geo ? { geo: { '@type': 'GeoCoordinates', latitude: seo.geo.lat, longitude: seo.geo.lng } } : {}),
+  ...(business.areas?.length
+    ? { areaServed: business.areas.map((name) => ({ '@type': 'Place', name: `${name}, София` })) }
+    : {}),
+  ...(seo.openingHours?.length ? { openingHours: seo.openingHours } : {}),
+  ...(seo.priceRange ? { priceRange: seo.priceRange } : {}),
+  ...(seo.sameAs?.length ? { sameAs: seo.sameAs } : {}),
+  ...(client.services?.length
+    ? {
+        hasOfferCatalog: {
+          '@type': 'OfferCatalog',
+          name: 'Услуги',
+          itemListElement: client.services.map((s) => ({
+            '@type': 'Offer',
+            itemOffered: { '@type': 'Service', name: s.title, description: s.text },
+          })),
+        },
+      }
+    : {}),
   ...(business.rating && business.reviewCount
     ? {
         aggregateRating: {
@@ -46,6 +74,7 @@ const jsonLd = {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{seo.title}</title>
     <meta name="description" content={seo.description} />
+    {seo.noindex ? <meta name="robots" content="noindex, nofollow" /> : <link rel="sitemap" href={withBase('/sitemap-index.xml')} />}
     <link rel="canonical" href={canonical} />
     <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
     <meta name="theme-color" content={theme?.dark ?? '#1f2328'} />
@@ -53,7 +82,10 @@ const jsonLd = {
     <meta property="og:description" content={seo.description} />
     <meta property="og:type" content="website" />
     <meta property="og:image" content={imageUrl(hero.image, 1200)} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={business.name} />
     <meta property="og:locale" content="bg_BG" />
+    <meta name="twitter:card" content="summary_large_image" />
     <link rel="preconnect" href="https://images.unsplash.com" crossorigin />
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </head>

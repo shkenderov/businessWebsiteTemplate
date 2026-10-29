@@ -34,7 +34,24 @@ export interface Client {
     yearsExperience?: number;
     eik?: string;           // company id for the footer
   };
-  seo: { title: string; description: string };
+  seo: {
+    /** Put the service and city first: "Ремонт на покриви София — Покриви Иванов" */
+    title: string;
+    description: string;
+    /** true for demos and pitches: tells Google not to index the page. */
+    noindex?: boolean;
+    /** schema.org business type, e.g. "RoofingContractor", "HVACBusiness",
+     *  "Plumber", "Electrician", "HomeAndConstructionBusiness". Default "LocalBusiness". */
+    schemaType?: string;
+    /** schema.org openingHoursSpecification shorthand, e.g. ["Mo-Sa 08:00-19:00"] */
+    openingHours?: string[];
+    /** e.g. "€€" */
+    priceRange?: string;
+    /** Links that prove it is the same business: Google Maps listing, Facebook page… */
+    sameAs?: string[];
+    /** Geo of the business address, if known, for the structured data. */
+    geo?: { lat: number; lng: number };
+  };
   hero: {
     headline: string;
     subline: string;

@@ -27,6 +27,9 @@ Edit `src/clients/yordan-pokrivi.json`:
 | `services[]` | 3–4 things they are paid for, one photo each |
 | `reviews.items[]` | paste their real Google reviews, then set `"sample": false` |
 | `theme.accent`, `theme.dark` | optional re-brand; everything restyles from these two colours |
+| `seo.title` | service and city first: "Ремонт на покриви София — Покриви Иванов" |
+| `seo.noindex` | `true` while it is a pitch/demo (Google ignores it); `false` once it is the client's real site |
+| `seo.schemaType`, `openingHours`, `priceRange`, `sameAs` | structured data: business type (RoofingContractor, HVACBusiness, Plumber…), hours, price band, links to the Maps listing / Facebook |
 
 Push to `main` and the site rebuilds. The client's page is at `/<slug>/`.
 
@@ -72,6 +75,20 @@ src/styles/global.css     Tailwind v4 theme tokens, fonts (Unbounded + Golos Tex
 ```
 
 Local: `npm run dev` → http://localhost:4321/businessWebsiteTemplate/
+
+## SEO
+
+What the page already does: keyword-first `<title>` and description, `lang="bg"`, one H1,
+alt text on photos, canonical URL, Open Graph tags (Viber/Facebook previews),
+schema.org structured data (business type, address, hours, service area, services,
+rating), sitemap + robots.txt, and sub-second load because it is static.
+
+What actually ranks a local trade is the Google Business Profile and its reviews; the
+site supports it. Keep name, address and phone identical on the site and the Maps
+listing, put the Maps listing URL in `seo.sameAs`, and link the site from the listing.
+
+Demo pages are `noindex` and left out of the sitemap, so pitches never show up in
+Google. Flip `seo.noindex` to `false` only on a client's real site, on their own domain.
 
 ## Deploy elsewhere
 
